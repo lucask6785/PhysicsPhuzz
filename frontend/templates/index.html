@@ -8,12 +8,7 @@
         <script>
             function solveProblem() {
                 const problem = document.getElementById("problem").value;  // Get problem input
-                
-                if (!problem.trim()) {  // Check if the problem input is empty
-        alert("Error: Please enter a problem!");  // Show error message
-        return;  // Exit the function if no problem is entered
-    }
-    
+        
                 // Send a POST request to the Flask backend with the user input
                 fetch('/solve', {
                     method: 'POST',
@@ -26,11 +21,6 @@
                 .then(data => {
                     console.log(data.message);  // Print the response from the backend
                     document.getElementById("solution").value = data.solution;  // Display solution
-
-                    // Show the steps button if a solution is provided
-                    if (data.solution) {
-                        document.getElementById("show-steps-button").style.display = "block";
-                    }
                 })
                 .catch(error => {
                     console.error('Error:', error);
@@ -39,14 +29,7 @@
             
             function showSteps() {
     const stepsSection = document.getElementById("steps-section");
-<<<<<<< HEAD
-<<<<<<< HEAD
     
-=======
->>>>>>> bb162540213bf482b780ca16f61c46bff8e0f6ba
-=======
-    
->>>>>>> 2f0abfd3a9dfc012b1340c95b3284c685f869783
     // Check if the steps-section is already visible
 
     if (stepsSection.style.visibility === "visible")  {
@@ -56,24 +39,12 @@
         // If hidden, open it by sliding and rotating into view from the left
         stepsSection.style.display = "flex";  // Ensure it's visible as a flex container
         setTimeout(() => {
-<<<<<<< HEAD
-<<<<<<< HEAD
-            stepsSection.style.visibility = "visible"  // Open like a book
-        }, 10);  // Delay for smooth sliding and rotation animation
-    }
-=======
-            stepsSection.style.transform = "translateX(200%)";  // Slide in from left
-        }, 10);  // Delay for smooth sliding animation
-} 
->>>>>>> bb162540213bf482b780ca16f61c46bff8e0f6ba
-=======
             stepsSection.style.transform = "translateX(200%)";  // Slide in from left
         }, 10);  // Delay for smooth sliding animation
 } 
             stepsSection.style.visibility = "visible"  // Open like a book
         }, 10);  // Delay for smooth sliding and rotation animation
     }
->>>>>>> 2f0abfd3a9dfc012b1340c95b3284c685f869783
 }
 
 
@@ -94,10 +65,10 @@
                 <label for="solution">Solution</label>
                 <textarea id="solution" placeholder="Solution will appear here..." readonly></textarea>
             </div>
-            <button id="show-steps-button" style="display: none;" onclick="showSteps()">Show Steps ➡️</button>
+            <button id="show-steps-button" onClick="showSteps()">Show Steps ➡️</button>
         
             <!-- Steps Section -->
-            <div id="steps-section" class="steps-section" style="visibility: hidden;">
+            <div id="steps-section" class="steps-section" style="visibility: visible;">
                 <h2>Steps to Solve:</h2>
                 <p>Step 1: Understand the Problem</p>
                 <p>Step 2: Identify the Known Variables</p>
