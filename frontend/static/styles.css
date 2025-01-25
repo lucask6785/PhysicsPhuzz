@@ -126,3 +126,9 @@ button:hover {
     color: #333;
     font-weight: bold;
 }
+
+.atom-image {
+    width: 50px; /* Set an appropriate width */
+    height: auto; /* Maintain aspect ratio */
+    margin-bottom: 20px; /* Adjust margin to fit your design */
+}

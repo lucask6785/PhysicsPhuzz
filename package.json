@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/lucask6785/SwampHacksX#readme",
   "dependencies": {
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "pip": "^0.0.1"
   }
 }
