@@ -168,6 +168,7 @@ textarea {
     justify-content: center;   /* Center the content */
     align-items: center;       /* Center the content */
     z-index: 9999;             /* Ensure it stays on top */
+    
 }
 
 /* Style for the steps section content */

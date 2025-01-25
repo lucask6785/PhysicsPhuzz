@@ -1,7 +1,29 @@
+import re
 from openai import OpenAI
 
 # Default value for user query
-user_query = "F = 6 * 8 what is the force?"
+user_query ="gyukkghkkkjkbghftuifyugygygglkjkho" 
+
+def standardize_physics_variables(text):
+    # Dictionary of replacements
+    replacements = {
+        r'\bu\b': 'v₀',  # Replace 'u' with 'v₀' for initial velocity
+        r'\bv_0\b': 'v₀',  # Replace 'v_0' with 'v₀'
+        r'\bv_i\b': 'v₀',  # Replace 'v_i' with 'v₀'
+        r'\ba\b': 'a',  # Keep 'a' for acceleration
+        r'\bg\b': 'g',  # Keep 'g' for gravitational acceleration
+        r'\bm\b': 'm',  # Keep 'm' for mass
+        r'\bh\b': 'h',  # Keep 'h' for height
+        r'\bt\b': 't',  # Keep 't' for time
+        r'\bF\b': 'F',  # Keep 'F' for force
+        r'\bE\b': 'E',  # Keep 'E' for energy
+        r'\bp\b': 'p',  # Keep 'p' for momentum
+    }
+    
+    for old, new in replacements.items():
+        text = re.sub(old, new, text)
+    
+    return text
 
 def process_physics_response():
     global user_query
@@ -29,8 +51,46 @@ def process_physics_response():
         # Remove the "---" separators
         message = message.replace("---", "")
 
-        # Other replacements remain the same
-        message = message.replace("*", "×").replace("###", "").replace("\\", "").replace("times", "×").replace("××", "")
+        # Handle LaTeX-style text commands
+        message = re.sub(r'\\text\{([^}]+)\}', r'\1', message)
+
+        # Handle fractions and square roots
+        message = re.sub(r'\\frac\{([^}]+)\}\{([^}]+)\}', r'(\1/\2)', message)
+        message = re.sub(r'(\d+)/(\d+)', r'(\1/\2)', message)
+        message = re.sub(r'sqrt\{([^}]+)\}', r'√{\1}', message)
+        message = re.sub(r'sqrt\s*(\d+)', r'√{\1}', message)
+
+        # Replace cdot with x
+        message = message.replace("cdot", "×")
+
+        # Other replacements
+        message = (message.replace("*", "×")
+                   .replace("###", "")
+                   .replace("\\", "")
+                   .replace("times", "×")
+                   .replace("××", "×")
+                   .replace("[", "")
+                   .replace("]", "")
+                   .replace("((", "(")
+                   .replace("))", ")")
+                   .replace("sqrt", "√")
+                   .replace("×", "")
+                   .replace("cdot", "×"))
+        
+        
+        # Add multiplication signs between numbers and parentheses
+        message = re.sub(r'(\d+)\s*($$|$$)', r'\1 × \2', message)
+        message = re.sub(r'($$|$$)\s*(\d+)', r'\1 × \2', message)
+
+        # Add multiplication signs between adjacent numbers
+        message = re.sub(r'(\d+)\s+(\d+)', r'\1 × \2', message)
+
+        # Ensure proper spacing around × symbol
+        message = re.sub(r'(\S)\s*×\s*(\S)', r'\1 × \2', message)
+
+
+        # Standardize physics variables
+        message = standardize_physics_variables(message)
 
         lines = message.split('\n')
 
