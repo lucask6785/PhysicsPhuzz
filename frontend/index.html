@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics Visualization</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Physics Formula Visualizer</h1>
+        
+        <div class="input-section">
+            <label for="formula">Enter Physics Formula:</label>
+            <input type="text" id="formula" placeholder="e.g., F = m * a">
+            
+            <label for="variables">Enter Variables (comma separated):</label>
+            <input type="text" id="variables" placeholder="e.g., F, m, a">
+            
+            <button onclick="processFormula()">Solve & Visualize</button>
+        </div>
+
+        <div class="results-section">
+            <div id="topic-display"></div>
+            <div id="solution-display"></div>
+            <div id="visualization">
+                <img id="plot-image" src="" alt="Formula Visualization">
+            </div>
+        </div>
+
+        <div class="examples">
+            <h3>Example Formulas</h3>
+            <div class="example">
+                <p>Kinematics: v = u + a*t</p>
+                <button onclick="useExample('v = u + a*t', 'v,u,a,t')">Use Example</button>
+            </div>
+            <div class="example">
+                <p>Newton's Second Law: F = m*a</p>
+                <button onclick="useExample('F = m*a', 'F,m,a')">Use Example</button>
+            </div>
+            <div class="example">
+                <p>Kinetic Energy: E = 0.5*m*v^2</p>
+                <button onclick="useExample('E = 0.5*m*v^2', 'E,m,v')">Use Example</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
