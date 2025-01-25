@@ -8,7 +8,7 @@
         <script>
             function solveProblem() {
                 const problem = document.getElementById("problem").value;  // Get problem input
-                
+        
                 // Send a POST request to the Flask backend with the user input
                 fetch('/solve', {
                     method: 'POST',
@@ -21,23 +21,30 @@
                 .then(data => {
                     console.log(data.message);  // Print the response from the backend
                     document.getElementById("solution").value = data.solution;  // Display solution
-                });
-            }
-
-            function showSteps() {
-                // Send a POST request to the Flask backend to get the steps
-                fetch('/show-steps', {
-                    method: 'POST'
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data.message);  // Print the response from the backend
                 })
                 .catch(error => {
                     console.error('Error:', error);
                 });
             }
+        
+            function showSteps() {
+    const stepsSection = document.getElementById("steps-section");
+
+    // Check if the steps-section is already visible
+    if (stepsSection.style.transform === "translateX(200%)") {
+        // If visible, hide it by moving it out of view to the left
+        stepsSection.style.transform = "translateX(-200%)";
+    } else {
+        // If hidden, slide it into view from the left
+        stepsSection.style.display = "flex";  // Ensure it's visible as a flex container
+        setTimeout(() => {
+            stepsSection.style.transform = "translateX(200%)";  // Slide in from left
+        }, 10);  // Delay for smooth sliding animation
+    }
+}
+
         </script>
+        
     </head>
 <body>
     <div class="container">
@@ -54,11 +61,23 @@
                 <textarea id="solution" placeholder="Solution will appear here..." readonly></textarea>
             </div>
             <button id="show-steps-button" onclick="showSteps()">Show Steps ➡️</button>
+        
+            <!-- Steps Section -->
+            <div id="steps-section" class="steps-section">
+                <h2>Steps to Solve:</h2>
+                <p>Step 1: Understand the Problem</p>
+                <p>Step 2: Identify the Known Variables</p>
+                <p>Step 3: Apply the Relevant Equations</p>
+                <p>Step 4: Solve for the Unknowns</p>
+                <p>Step 5: Verify the Solution</p>
+            </div>
         </div>
+        
+        
+        
         <div class="right-panel">
             <div class="visualization">
                 <iframe src="{{ url_for('static', filename='build/web/index.html') }}" width="640" height="480"></iframe>
-
             </div>
         </div>
     </div>
