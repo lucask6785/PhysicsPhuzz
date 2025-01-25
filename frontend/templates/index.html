@@ -49,7 +49,10 @@
             <button id="show-steps-button" onclick="showSteps()">Show Steps ➡️</button>
         </div>
         <div class="right-panel">
-            <div class="visualization"></div>
+            <div class="visualization">
+                <iframe src="{{ url_for('static', filename='build/web/index.html') }}" width="640" height="480"></iframe>
+
+            </div>
         </div>
     </div>
 
