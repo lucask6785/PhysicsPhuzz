@@ -34,7 +34,7 @@ def draw_arrow(screen, body, screen_height, font):
     velocity = body.velocity
     position = body.position
     angle = math.atan2(velocity.y, velocity.x)
-    length = velocity.length / 10  # Scale the length of the arrow
+    length = velocity.length / 8  # Scale the length of the arrow
 
     # Calculate positions
     arrow_head = (position.x + length * math.cos(angle), screen_height - position.y - length * math.sin(angle))
@@ -56,7 +56,7 @@ def draw_arrow(screen, body, screen_height, font):
 
     # Calculate and draw velocity magnitude
     velocity_mag = round(velocity.length, 1)  # In pymunk units
-    text_surface, _ = font.render(f"{velocity_mag} px/s", (0, 0, 0))
+    text_surface, _ = font.render(f"{round(velocity_mag/50, 2)} m/s", (0, 0, 0)) # 50 pixels: 1 meter
     screen.blit(text_surface, text_pos)
 
 def bouncy_ball(num_balls, args_list, gravity):
@@ -103,7 +103,7 @@ def bouncy_ball(num_balls, args_list, gravity):
         # Draw ball (convert Pymunk coordinates to screen coordinates)
         for i in range(num_balls):
             ball_pos = int(balls[i].object.position.x), screen_height - int(balls[i].object.position.y)
-            pygame.draw.circle(screen, (0, 0, 255), ball_pos, balls[i].radius)
+            pygame.draw.circle(screen, (173, 216, 230), ball_pos, balls[i].radius)
             draw_arrow(screen, balls[i].object, screen_height, font)
         
         pygame.display.flip()
@@ -125,11 +125,11 @@ def create_walls(space, width, height):
 
 num_balls = 3
 args_list = [{'x': 200,'y': 300,'vx': 100,'vy': 0,'ax': 0,'ay': 0,'elasticity': 1,'friction': 0.0,'mass': 2,'radius': 15},
-             {'x': 600,'y': 300,'vx': 300,'vy': 0,'ax': 0,'ay': 0,'elasticity': 1,'friction': 0.0,'mass': 2,'radius': 15},
-             {'x': 400,'y': 300,'vx': 500,'vy': 0,'ax': 0,'ay': 0,'elasticity': 1,'friction': 0.0,'mass': 2,'radius': 15}]
+             {'x': 200,'y': 200,'vx': 300,'vy': 0,'ax': 0,'ay': 0,'elasticity': 1,'friction': 0.0,'mass': 2,'radius': 15},
+             {'x': 200,'y': 100,'vx': 500,'vy': 0,'ax': 0,'ay': 0,'elasticity': 1,'friction': 0.0,'mass': 2,'radius': 15}]
 
 def main():
-    bouncy_ball(num_balls, args_list, -981)
+    bouncy_ball(num_balls, args_list, 0)
 
 if __name__ == "__main__":
     main()
