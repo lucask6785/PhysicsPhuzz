@@ -163,16 +163,17 @@ button:hover {
 /* Full page style for the steps-section */
 .steps-section {
     position: absolute;
-    left: -100%;  /* Start hidden to the left of the left panel */
+    left: 100%;  /* Start hidden to the left of the left panel */
     top: 0;
-    width: 100%;   /* Full width like the left panel */
+    width: 100%;  /* Full width like the left panel */
     height: 100%;
-    background-color: #f9f9d4;
-    border-right: 2px solid #ccc;
-    border-radius: 15px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    transform: translateX(0);  /* Default hidden position */
-    transition: transform 0.3s ease-in-out;  /* Smooth transition */
+    background-color: #f9f9d4;  /* Same beige background as the left panel */
+    border-left: 10px solid #ccc; /* Thick left border to mimic a book spine */
+    border-radius: 15px;  /* Rounded corners like the left panel */
+    box-shadow: 4px 0 8px rgba(0, 0, 0, 0.2);  /* Drop shadow on the right */
+    transform: translateX(0) rotateY(-30deg);  /* Initially rotate slightly to mimic a book spine */
+    transform-origin: left center;  /* Make the transform origin on the left side */
+    transition: transform 0.5s ease, width 0.5s ease;  /* Smooth transition for sliding and rotation */
     display: flex;
     flex-direction: column;
     justify-content: center;   /* Center the content */
@@ -192,6 +193,7 @@ button:hover {
     text-align: center;
     color: #555;
 }
+
 
 
 

@@ -31,17 +31,18 @@
     const stepsSection = document.getElementById("steps-section");
 
     // Check if the steps-section is already visible
-    if (stepsSection.style.transform === "translateX(200%)") {
-        // If visible, hide it by moving it out of view to the left
-        stepsSection.style.transform = "translateX(-200%)";
+    if (stepsSection.style.transform === "translateX(0%) rotateY(0deg)") {
+        // If visible, close it by rotating and moving it out to the left
+        stepsSection.style.transform = "translateX(-100%) rotateY(-30deg)";
     } else {
-        // If hidden, slide it into view from the left
+        // If hidden, open it by sliding and rotating into view from the left
         stepsSection.style.display = "flex";  // Ensure it's visible as a flex container
         setTimeout(() => {
-            stepsSection.style.transform = "translateX(200%)";  // Slide in from left
-        }, 10);  // Delay for smooth sliding animation
+            stepsSection.style.transform = "translateX(100%) rotateY(0deg)";  // Open like a book
+        }, 10);  // Delay for smooth sliding and rotation animation
     }
 }
+
 
         </script>
         
