@@ -47,7 +47,7 @@ def bouncy_ball(num_balls, args_list, gravity):
     for i in range(num_balls):
         balls.append(Ball(args_list[i], screen_height))
         balls[i].object = balls[i].create_ball(space)
-        balls[i].acceleration_y -= 981 #FIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIXXXXXXXXXXX
+        balls[i].acceleration_y += gravity #FIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIXXXXXXXXXXX
     
     running = True
     while running:
@@ -96,7 +96,7 @@ num_balls = 1
 args_list = [{'x': 200,'y': 300,'vx': 0,'vy': 0,'ax': 0,'ay': 0,'elasticity': 1,'friction': 0.0,'mass': 2,'radius': 15}]
 
 def main():
-    bouncy_ball(num_balls, args_list, 0)
+    bouncy_ball(num_balls, args_list, -981)
 
 if __name__ == "__main__":
     main()
