@@ -15,10 +15,17 @@ def solve_route():
     data = request.get_json()
     problem = data.get('problem', '')
     print('solve button clicked')
+
+    # Solve the problem and get the solution and steps
     solution, steps = solve(problem)
     print(solution)
-    # Return the solution as JSON
-    return jsonify({'solution': solution, 'message': 'Solution calculated!'})
+
+    # Return the solution and steps as JSON
+    return jsonify({
+        'solution': solution,
+        'steps': steps,
+        'message': 'Solution calculated!'
+    })
 
 # Route to handle the 'Show Steps' button functionality
 @app.route('/show-steps', methods=['POST'])
