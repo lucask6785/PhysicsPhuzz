@@ -29,18 +29,24 @@
             
             function showSteps() {
     const stepsSection = document.getElementById("steps-section");
+    
     // Check if the steps-section is already visible
-    if (stepsSection.style.transform === "translateX(200%)") {
-        // If visible, hide it by moving it out of view to the left
-        stepsSection.style.transform = "translateX(-200%)";
+
+    if (stepsSection.style.visibility === "visible")  {
+        // If visible, close it by rotating and moving it out to the left
+        stepsSection.style.visibility = "hidden";  // Fade out for smooth transition
     } else {
-        // If hidden, slide it into view from the left
+        // If hidden, open it by sliding and rotating into view from the left
         stepsSection.style.display = "flex";  // Ensure it's visible as a flex container
         setTimeout(() => {
             stepsSection.style.transform = "translateX(200%)";  // Slide in from left
         }, 10);  // Delay for smooth sliding animation
 } 
+            stepsSection.style.visibility = "visible"  // Open like a book
+        }, 10);  // Delay for smooth sliding and rotation animation
+    }
 }
+
 
         </script>
         
@@ -59,10 +65,10 @@
                 <label for="solution">Solution</label>
                 <textarea id="solution" placeholder="Solution will appear here..." readonly></textarea>
             </div>
-            <button id="show-steps-button" onclick="showSteps()">Show Steps ➡️</button>
+            <button id="show-steps-button" onClick="showSteps()">Show Steps ➡️</button>
         
             <!-- Steps Section -->
-            <div id="steps-section" class="steps-section">
+            <div id="steps-section" class="steps-section" style="visibility: visible;">
                 <h2>Steps to Solve:</h2>
                 <p>Step 1: Understand the Problem</p>
                 <p>Step 2: Identify the Known Variables</p>

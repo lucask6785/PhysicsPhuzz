@@ -3,18 +3,18 @@ import pymunk
 import pymunk.pygame_util
 
 class Ball:
-    def __init__(self, args, mass, radius, elasticity, friction, screen_height):
+    def __init__(self, args, screen_height):
         self.position_x = args['x']
         self.position_y = args['y']
         self.velocity_x = args['vx']
         self.velocity_y = args['vy']
         self.acceleration_x = args['ax']
         self.acceleration_y = args['ay']
-        self.mass = mass
-        self.radius = radius
+        self.mass = args['mass']
+        self.radius = args['radius']
         self.screen_height = screen_height
-        self.elasticity = elasticity
-        self.friction = friction
+        self.elasticity = args['elasticity']
+        self.friction = args['friction']
         self.object = None
 
     def create_ball(self, space):
@@ -27,15 +27,8 @@ class Ball:
         shape.friction = self.friction
         space.add(body, shape)
         return body
-    
-args = {'x': 200,
-        'y': 500,
-        'vx': 1000,
-        'vy': 0,
-        'ax': 0,
-        'ay': 0}
 
-def bouncy_ball():
+def bouncy_ball(num_balls, args_list, gravity):
     # Initialize Pygame
     pygame.init()
     screen_width, screen_height = 800, 600
@@ -45,12 +38,16 @@ def bouncy_ball():
     
     # Initialize Pymunk space
     space = pymunk.Space()
-    space.gravity = (0, -981)
+    space.gravity = (0, 0)
+    balls = []
     
     # Create physics objects
     create_walls(space, screen_width, screen_height)
-    ball = Ball(args, 1, 15, 0.9, 0.5, screen_height)
-    ball.object = ball.create_ball(space)
+
+    for i in range(num_balls):
+        balls.append(Ball(args_list[i], screen_height))
+        balls[i].object = balls[i].create_ball(space)
+        balls[i].acceleration_y -= 981 #FIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIXXXXXXXXXXX
     
     running = True
     while running:
@@ -58,10 +55,14 @@ def bouncy_ball():
             if event.type == pygame.QUIT:
                 running = False
         
-        # Apply acceleration (convert screen coordinates to Pymunk forces)
-        force = (ball.mass * ball.acceleration_x, ball.mass * -ball.acceleration_y)
-        ball.object.apply_force_at_world_point(force, ball.object.position)
-        
+        for i in range(num_balls):
+            # Apply acceleration (convert screen coordinates to Pymunk forces)
+            if i < num_balls - 1:
+                force = (balls[i].mass * balls[i].acceleration_x, balls[i].mass * -balls[i].acceleration_y)
+                balls[i].object.apply_force_at_world_point(force, balls[i].object.position)
+            else:
+                force = (balls[i].mass )
+
         # Update physics
         space.step(1/60.0)
         
@@ -69,8 +70,10 @@ def bouncy_ball():
         screen.fill((255, 255, 255))
         
         # Draw ball (convert Pymunk coordinates to screen coordinates)
-        ball_pos = int(ball.object.position.x), screen_height - int(ball.object.position.y)
-        pygame.draw.circle(screen, (0, 0, 255), ball_pos, ball.radius)
+        for i in range(num_balls):
+            ball_pos = int(balls[i].object.position.x), screen_height - int(balls[i].object.position.y)
+            pygame.draw.circle(screen, (0, 0, 255), ball_pos, balls[i].radius)
+            pygame.draw.line(screen, (0, 255, 0), ball_pos, ((ball_pos[0]+balls[i].acceleration_x)/100, (balls[i].acceleration_y)/100), 2)
         
         pygame.display.flip()
         clock.tick(60)
@@ -89,8 +92,11 @@ def create_walls(space, width, height):
         wall.friction = 0.5
     space.add(*walls)
 
+num_balls = 1
+args_list = [{'x': 200,'y': 300,'vx': 0,'vy': 0,'ax': 0,'ay': 0,'elasticity': 1,'friction': 0.0,'mass': 2,'radius': 15}]
+
 def main():
-    bouncy_ball()
+    bouncy_ball(num_balls, args_list, 0)
 
 if __name__ == "__main__":
     main()

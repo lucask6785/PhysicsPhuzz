@@ -1,6 +1,7 @@
 import pygame
 import pymunk
 import pymunk.pygame_util
+import math
 
 args = {"x": 200, "y": 500, "vx": 0, "vy": 0, "ax": 0, "ay": 0}
 
@@ -55,7 +56,7 @@ def pendulum_simulation():
     anchor_point = (400, 300)
     bob_position = (500, 300)
     bob_velocity = (0, 0)
-    create_pendulum(space, anchor_point, bob_position, bob_velocity)
+    bob = create_pendulum(space, anchor_point, bob_position, bob_velocity)
 
     running = True
     while running:
@@ -69,6 +70,7 @@ def pendulum_simulation():
         # Draw everything
         screen.fill((255, 255, 255))
         space.debug_draw(draw_options)
+        draw_arrow(screen, bob)
 
         pygame.display.flip()
         clock.tick(60)
@@ -116,8 +118,8 @@ def create_car(space, pos, velocity):
     # Joints
     pivot1 = pymunk.PivotJoint(body, wheel1, (-50, 30), (0, 0))
     pivot2 = pymunk.PivotJoint(body, wheel2, (50, 30), (0, 0))
-    motor1 = pymunk.SimpleMotor(body, wheel1, -5)
-    motor2 = pymunk.SimpleMotor(body, wheel2, -5)
+    motor1 = pymunk.SimpleMotor(body, wheel1, 5)
+    motor2 = pymunk.SimpleMotor(body, wheel2, 5)
     space.add(pivot1, pivot2, motor1, motor2)
 
     # Collision handler to ignore collisions between car body and wheels
@@ -160,12 +162,28 @@ def car_simulation():
         # Draw everything
         screen.fill((255, 255, 255))
         space.debug_draw(draw_options)
+        draw_arrow(screen, car)
 
         pygame.display.flip()
         clock.tick(60)
 
     pygame.quit()
 
+def draw_arrow(screen, body):
+    velocity = body.velocity
+    position = body.position
+    angle = math.atan2(velocity.y, velocity.x)
+    length = velocity.length / 10  # Scale the length of the arrow
+
+    arrow_head = (position.x + length * math.cos(angle), position.y + length * math.sin(angle))
+    arrow_tail = (position.x, position.y)
+
+    pygame.draw.line(screen, (255, 0, 0), arrow_tail, arrow_head, 2)
+    pygame.draw.polygon(screen, (255, 0, 0), [
+        (arrow_head[0] + 5 * math.cos(angle + math.pi / 2), arrow_head[1] + 5 * math.sin(angle + math.pi / 2)),
+        (arrow_head[0] + 5 * math.cos(angle - math.pi / 2), arrow_head[1] + 5 * math.sin(angle - math.pi / 2)),
+        (arrow_head[0] + 10 * math.cos(angle), arrow_head[1] + 10 * math.sin(angle))
+    ])
 
 def main():
     car_simulation()
