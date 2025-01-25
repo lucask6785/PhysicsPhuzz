@@ -14,8 +14,9 @@ def solve_route():
     # Get the problem data from the frontend
     data = request.get_json()
     problem = data.get('problem', '')
-
+    print('solve button clicked')
     solution, steps = solve(problem)
+    print(solution)
     # Return the solution as JSON
     return jsonify({'solution': solution, 'message': 'Solution calculated!'})
 
