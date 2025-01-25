@@ -2,25 +2,38 @@ import pygame
 import pymunk
 import pymunk.pygame_util
 
-args = {'x': 0,
-        'y': 0,
-        'vx': 10,
-        'vy': 10,
-        'ax': 0,
-        'ay': 10}
+class Ball:
+    def __init__(self, args, mass, radius, elasticity, friction, screen_height):
+        self.position_x = args['x']
+        self.position_y = args['y']
+        self.velocity_x = args['vx']
+        self.velocity_y = args['vy']
+        self.acceleration_x = args['ax']
+        self.acceleration_y = args['ay']
+        self.mass = mass
+        self.radius = radius
+        self.screen_height = screen_height
+        self.elasticity = elasticity
+        self.friction = friction
+        self.object = None
 
-def create_ball(space, pos, velocity):
-    mass = 1
-    radius = 15
-    moment = pymunk.moment_for_circle(mass, 0, radius)
-    body = pymunk.Body(mass, moment)
-    body.position = pos
-    body.velocity = velocity
-    shape = pymunk.Circle(body, radius)
-    shape.elasticity = 0.9
-    shape.friction = 0.5
-    space.add(body, shape)
-    return body
+    def create_ball(self, space):
+        moment = pymunk.moment_for_circle(self.mass, 0, self.radius)
+        body = pymunk.Body(self.mass, moment)
+        body.position = (self.position_x, self.screen_height - self.position_y)
+        body.velocity = (self.velocity_x, -self.velocity_y)
+        shape = pymunk.Circle(body, self.radius)
+        shape.elasticity = self.elasticity
+        shape.friction = self.friction
+        space.add(body, shape)
+        return body
+
+args = {'x': 100,
+        'y': 100,
+        'vx': 0,
+        'vy': 100,
+        'ax': 1000,
+        'ay': 0}
 
 def create_walls(space, width, height):
     walls = [
@@ -48,12 +61,13 @@ def main():
     space.gravity = (0, 0)
     
     # Convert screen coordinates to Pymunk coordinates
-    pymunk_pos = (args['x'], screen_height - args['y'])
-    pymunk_vel = (args['vx'], -args['vy'])
+    #pymunk_pos = (args['x'], screen_height - args['y'])
+    #pymunk_vel = (args['vx'], -args['vy'])
     
     # Create physics objects
     create_walls(space, screen_width, screen_height)
-    ball = create_ball(space, pymunk_pos, pymunk_vel)
+    ball = Ball(args, 1, 15, 0.9, 0.5, screen_height)
+    ball.object = ball.create_ball(space)
     
     running = True
     while running:
@@ -62,8 +76,8 @@ def main():
                 running = False
         
         # Apply acceleration (convert screen coordinates to Pymunk forces)
-        force = (ball.mass * args['ax'], ball.mass * -args['ay'])
-        ball.apply_force_at_world_point(force, ball.position)
+        force = (ball.mass * ball.acceleration_x, ball.mass * -ball.acceleration_y)
+        ball.object.apply_force_at_world_point(force, ball.object.position)
         
         # Update physics
         space.step(1/60.0)
@@ -72,8 +86,8 @@ def main():
         screen.fill((255, 255, 255))
         
         # Draw ball (convert Pymunk coordinates to screen coordinates)
-        ball_pos = int(ball.position.x), screen_height - int(ball.position.y)
-        pygame.draw.circle(screen, (0, 0, 255), ball_pos, 15)
+        ball_pos = int(ball.object.position.x), screen_height - int(ball.object.position.y)
+        pygame.draw.circle(screen, (0, 0, 255), ball_pos, ball.radius)
         
         pygame.display.flip()
         clock.tick(60)
