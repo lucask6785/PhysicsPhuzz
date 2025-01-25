@@ -2,7 +2,7 @@ import re
 from openai import OpenAI
 
 # Default value for user query
-user_query ="gyukkghkkkjkbghftuifyugygygglkjkho" 
+user_query ="A 5 kg object is dropped from a height of 10 meters. What is the velocity just before it hits the ground? (Assume no air resistance)" 
 
 def standardize_physics_variables(text):
     # Dictionary of replacements
@@ -34,6 +34,7 @@ def process_physics_response():
         messages=[
             {"role": "system", "content": "You are a physics expert"},
             {"role": "system", "content": "All messages sent through the user will be about physics, apply all problems and solutions through physics"},
+            {"role": "system", "content": "I need you to make another section just for variables and what they are equal too, so all the variables at the end the solution. Any variable to do with the equation. Label the first word when you create this list, 'Variables:'"},
             {"role": "system", "content": "Always state the problem with the first words being 'Problem Statement:' , exactly like this, and the solution as 'Solution:' this will be the case every single time."},
             {"role": "system", "content": "Give everything separately, so the problem statement, you should restate the problem in better terms, outlining to the user what the question is and what it is asking. Next you will provide step by step explanation of how to get from the problem the user gives to the solution in a bullet pointed format with indents and tabs to the next line. This problem and step by step solution will be paired together. Next you give the solution, this solution will be by itself and start with the word solution and then indent again, this will be separately looked at not with the problem and step by step solution."},
             {"role": "user", "content": user_query}
@@ -45,7 +46,9 @@ def process_physics_response():
 
     problem_and_step_by_step = ""
     solution = ""
+    variables=""
     in_solution = False
+    in_variables= False
 
     for message in messages:
         # Remove the "---" separators
@@ -59,6 +62,7 @@ def process_physics_response():
         message = re.sub(r'(\d+)/(\d+)', r'(\1/\2)', message)
         message = re.sub(r'sqrt\{([^}]+)\}', r'√{\1}', message)
         message = re.sub(r'sqrt\s*(\d+)', r'√{\1}', message)
+        message = re.sub(r'√\{([^}]+)\}', r'√\1', message)
 
         # Replace cdot with x
         message = message.replace("cdot", "×")
@@ -98,9 +102,16 @@ def process_physics_response():
             line = line.strip()  # Remove leading/trailing whitespace
             if line.startswith("Solution:"):
                 in_solution = True
+                in_variables = False
                 solution = line[9:].strip() + '\n'  # Start from the 9th character to skip "Solution:"
+            elif line.startswith("Variables:"):
+                in_variables = True
+                in_solution = False
+                variables = line + '\n'
             elif in_solution:
                 solution += line + '\n'
+            elif in_variables:
+                variables += line + '\n'
             elif line:  # Only add non-empty lines to problem_and_step_by_step
                 if line.startswith("Step-by-Step Explanation:"):
                     problem_and_step_by_step += '\n\n' + line + '\n'
@@ -109,12 +120,13 @@ def process_physics_response():
 
     problem_and_step_by_step = problem_and_step_by_step.strip()
     solution = solution.strip()
+    variables = variables.strip()
 
     print(problem_and_step_by_step)
     print(solution)
+    print(variables)
 
-    return user_query, problem_and_step_by_step, solution
+    return user_query, problem_and_step_by_step, solution, variables
 
 if __name__ == '__main__':
     process_physics_response()
-
