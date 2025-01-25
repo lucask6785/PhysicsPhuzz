@@ -186,7 +186,7 @@ def draw_arrow(screen, body):
     ])
 
 def main():
-    car_simulation()
+    pendulum_simulation()
 
 
 if __name__ == "__main__":

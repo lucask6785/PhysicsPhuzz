@@ -89,7 +89,23 @@ def draw_force_arrow(screen, position, force_vector, screen_height, font, accele
         text_surface, _ = font.render(f"{force_mag} N", (0, 0, 0))
         screen.blit(text_surface, text_pos)
 
-def bouncy_ball(num_balls, args_list, gravity):
+def create_walls(space, width, height):
+    walls = [
+        pymunk.Segment(space.static_body, (0, 0), (0, height), 5),
+        pymunk.Segment(space.static_body, (0, height), (width, height), 5),
+        pymunk.Segment(space.static_body, (width, height), (width, 0), 5),
+        pymunk.Segment(space.static_body, (width, 0), (0, 0), 5)
+    ]
+    for wall in walls:
+        wall.elasticity = 0.9
+        wall.friction = 0.5
+    space.add(*walls)
+
+
+################################################################################################
+
+
+def free_balls(num_balls, args_list, gravity):
     acceleration_display = False
     velocity_display = False
 
@@ -104,6 +120,7 @@ def bouncy_ball(num_balls, args_list, gravity):
     
     space = pymunk.Space()
     space.gravity = (0, 0)
+
     balls = []
     
     create_walls(space, screen_width, screen_height)
@@ -159,17 +176,109 @@ def bouncy_ball(num_balls, args_list, gravity):
 
     pygame.quit()
 
-def create_walls(space, width, height):
-    walls = [
-        pymunk.Segment(space.static_body, (0, 0), (0, height), 5),
-        pymunk.Segment(space.static_body, (0, height), (width, height), 5),
-        pymunk.Segment(space.static_body, (width, height), (width, 0), 5),
-        pymunk.Segment(space.static_body, (width, 0), (0, 0), 5)
-    ]
-    for wall in walls:
-        wall.elasticity = 0.9
-        wall.friction = 0.5
-    space.add(*walls)
+def centripetal_simulation():
+    velocity_display = False
+    acceleration_display = False
+
+    # Initialize Pygame and fonts
+    pygame.init()
+    pygame.freetype.init()
+    font = pygame.freetype.SysFont('Arial', 20)
+    
+    # Screen setup
+    screen_width, screen_height = 800, 600
+    screen = pygame.display.set_mode((screen_width, screen_height))
+    pygame.display.set_caption("Centripetal Acceleration Simulation")
+    clock = pygame.time.Clock()
+    
+    # Physics space
+    space = pymunk.Space()
+    space.gravity = (0, 0)
+    
+    # Create rotating ball
+    center = (screen_width//2, screen_height//2)
+    radius = 200
+    mass = 2
+    tangential_speed = 300  # pixels/second
+    
+    args = {
+        'x': center[0] + radius,
+        'y': center[1],
+        'vx': 0,
+        'vy': tangential_speed,
+        'ax': 0,
+        'ay': 0,
+        'elasticity': 1.0,
+        'friction': 0.0,
+        'mass': mass,
+        'radius': 15
+    }
+    
+    ball = Ball(args, screen_height)
+    ball.object = ball.create_ball(space)
+    
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_a:
+                    if acceleration_display == True:
+                        acceleration_display = False
+                    else:
+                        acceleration_display = True
+                elif event.key == pygame.K_v:
+                    if velocity_display == True:
+                        velocity_display = False
+                    else:
+                        velocity_display = True
+        
+        # Calculate and apply centripetal force
+        body = ball.object
+        dx = center[0] - (body.position.x)
+        dy = center[1] - (screen_height - body.position.y)
+        r = math.hypot(dx, dy)
+        
+        if r > 0:  # Avoid division by zero
+            # Calculate required centripetal force (F = mv²/r)
+            vx, vy = body.velocity.x, body.velocity.y
+            speed_sq = vx**2 + vy**2
+            force_mag = (mass * speed_sq) / r
+            
+            # Force direction towards center
+            fx = force_mag * (dx / r)
+            fy = force_mag * (dy / r)
+            
+            # Apply force in Pymunk coordinates (flip y)
+            body.apply_force_at_world_point((fx, -fy), body.position)
+        
+        # Physics step
+        space.step(1/60.0)
+        
+        # Draw everything
+        screen.fill((255, 255, 255))
+        
+        # Draw center point
+        pygame.draw.circle(screen, (255, 0, 0), center, 5)
+        
+        # Draw ball and arrows
+        ball_pos = (int(body.position.x), screen_height - int(body.position.y))
+        pygame.draw.circle(screen, (0, 0, 255), ball_pos, ball.radius)
+        
+        # Draw velocity arrow (red)
+        draw_arrow(screen, body, screen_height, font, velocity_display)
+        
+        # Draw centripetal force arrow (green)
+        if r > 0:
+            force_vector = (fx, -fy)  # Convert to Pymunk coordinates
+            draw_force_arrow(screen, body.position, force_vector, screen_height, font, acceleration_display)
+        
+        pygame.display.flip()
+        clock.tick(60)
+    
+    pygame.quit()
+
 
 # Example configuration: two balls with different forces
 num_balls = 1
@@ -184,7 +293,7 @@ args_list = [
 ]
 
 def main():
-    bouncy_ball(num_balls, args_list, 0)
+    centripetal_simulation()
 
 if __name__ == "__main__":
     main()
