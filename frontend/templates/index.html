@@ -26,10 +26,9 @@
                     console.error('Error:', error);
                 });
             }
-        
+            
             function showSteps() {
     const stepsSection = document.getElementById("steps-section");
-
     // Check if the steps-section is already visible
     if (stepsSection.style.transform === "translateX(200%)") {
         // If visible, hide it by moving it out of view to the left
@@ -40,7 +39,7 @@
         setTimeout(() => {
             stepsSection.style.transform = "translateX(200%)";  // Slide in from left
         }, 10);  // Delay for smooth sliding animation
-    }
+} 
 }
 
         </script>
