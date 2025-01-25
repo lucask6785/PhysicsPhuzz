@@ -26,10 +26,9 @@
                     console.error('Error:', error);
                 });
             }
-        
+            
             function showSteps() {
     const stepsSection = document.getElementById("steps-section");
-    
     // Check if the steps-section is already visible
 
     if (stepsSection.style.visibility === "visible")  {
@@ -39,9 +38,9 @@
         // If hidden, open it by sliding and rotating into view from the left
         stepsSection.style.display = "flex";  // Ensure it's visible as a flex container
         setTimeout(() => {
-            stepsSection.style.visibility = "visible"  // Open like a book
-        }, 10);  // Delay for smooth sliding and rotation animation
-    }
+            stepsSection.style.transform = "translateX(200%)";  // Slide in from left
+        }, 10);  // Delay for smooth sliding animation
+} 
 }
 
 
