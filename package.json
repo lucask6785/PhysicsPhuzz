@@ -1,0 +1,25 @@
+{
+  "name": "swamphacksx",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lucask6785/SwampHacksX.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/lucask6785/SwampHacksX/issues"
+  },
+  "homepage": "https://github.com/lucask6785/SwampHacksX#readme",
+  "dependencies": {
+    "express": "^4.21.2",
+    "pip": "^0.0.1"
+  }
+}
