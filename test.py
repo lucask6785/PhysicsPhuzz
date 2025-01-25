@@ -137,7 +137,7 @@ def pendulum_simulation():
 
     pygame.quit()
 def main():
-    pendulum_simulation()
+    bouncy_ball()
 
 if __name__ == "__main__":
     main()
