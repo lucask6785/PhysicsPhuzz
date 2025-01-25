@@ -1,17 +1,13 @@
 import pygame
 import pymunk
 import pymunk.pygame_util
-import argparse
 
-def parse_arguments():
-    parser = argparse.ArgumentParser(description='Physics simulation with custom parameters')
-    parser.add_argument('--x', type=float, default=400, help='Initial X position (screen coordinates)')
-    parser.add_argument('--y', type=float, default=300, help='Initial Y position (screen coordinates)')
-    parser.add_argument('--vx', type=float, default=0, help='Initial X velocity (screen coordinates)')
-    parser.add_argument('--vy', type=float, default=0, help='Initial Y velocity (screen coordinates)')
-    parser.add_argument('--ax', type=float, default=0, help='X acceleration (screen coordinates)')
-    parser.add_argument('--ay', type=float, default=0, help='Y acceleration (screen coordinates)')
-    return parser.parse_args()
+args = {'x': 0,
+        'y': 0,
+        'vx': 10,
+        'vy': 10,
+        'ax': 0,
+        'ay': 10}
 
 def create_ball(space, pos, velocity):
     mass = 1
@@ -39,7 +35,6 @@ def create_walls(space, width, height):
     space.add(*walls)
 
 def main():
-    args = parse_arguments()
     
     # Initialize Pygame
     pygame.init()
@@ -53,8 +48,8 @@ def main():
     space.gravity = (0, 0)
     
     # Convert screen coordinates to Pymunk coordinates
-    pymunk_pos = (args.x, screen_height - args.y)
-    pymunk_vel = (args.vx, -args.vy)
+    pymunk_pos = (args['x'], screen_height - args['y'])
+    pymunk_vel = (args['vx'], -args['vy'])
     
     # Create physics objects
     create_walls(space, screen_width, screen_height)
@@ -67,7 +62,7 @@ def main():
                 running = False
         
         # Apply acceleration (convert screen coordinates to Pymunk forces)
-        force = (ball.mass * args.ax, ball.mass * -args.ay)
+        force = (ball.mass * args['ax'], ball.mass * -args['ay'])
         ball.apply_force_at_world_point(force, ball.position)
         
         # Update physics
