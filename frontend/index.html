@@ -4,24 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Physics Problem Solver</title>
-    <!-- Link to external CSS file -->
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css"> <!-- Link to the external CSS file -->
 </head>
 <body>
     <div class="container">
         <div class="left-panel">
-            <!-- Image added to the top-left -->
             <img src="atom.png" alt="Atom Image">
             <h1>Physics Problem Solver</h1>
             <div class="input-section">
                 <label for="problem">Enter your physics problem to see a solution and visualization!</label>
                 <textarea id="problem" placeholder="Type your problem here..."></textarea>
             </div>
+            <button class="solve-button">
+                Solve ⬇️
+            </button>
             <div class="solution-section">
                 <label for="solution">Solution</label>
                 <textarea id="solution" placeholder="Solution will appear here..." readonly></textarea>
             </div>
-            <button>See Steps</button>
+            <button class="show-steps-button">
+                Show Steps ➡️
+            </button>
         </div>
         <div class="right-panel">
             <div class="visualization"></div>
