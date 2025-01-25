@@ -2,7 +2,21 @@ import re
 from openai import OpenAI
 
 # Default value for user query
-user_query ="A 5 kg object is dropped from a height of 10 meters. What is the velocity just before it hits the ground? (Assume no air resistance)" 
+user_query = "The kinetic energy is given by K = 1/2 mv^5 . If the mass is tripled and the velocity is doubled, what is the new kinetic energy?" 
+
+# Map to convert ^# to its subscript equivalent
+subscript_map = {
+    "-30": "₋³⁰", "-29": "₋²⁹", "-28": "₋²⁸", "-27": "₋²⁷", "-26": "₋²⁶", "-25": "₋²⁵",
+    "-24": "₋²⁴", "-23": "₋²³", "-22": "₋²²", "-21": "₋²¹", "-20": "₋²⁰", "-19": "₋¹⁹",
+    "-18": "₋¹⁸", "-17": "₋¹⁷", "-16": "₋¹⁶", "-15": "₋¹⁵", "-14": "₋¹⁴", "-13": "₋¹³",
+    "-12": "₋¹²", "-11": "₋¹¹", "-10": "₋¹⁰", "-9": "₋⁹", "-8": "₋⁸", "-7": "₋⁷",
+    "-6": "₋⁶", "-5": "₋⁵", "-4": "₋⁴", "-3": "₋³", "-2": "₋²", "-1": "₋¹", "0": "₀", 
+    "2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸",
+    "9": "⁹", "10": "¹⁰", "11": "¹¹", "12": "¹²", "13": "¹³", "14": "¹⁴", "15": "¹⁵",
+    "16": "¹⁶", "17": "¹⁷", "18": "¹⁸", "19": "¹⁹", "20": "²⁰", "21": "²¹", "22": "²²",
+    "23": "²³", "24": "²⁴", "25": "²⁵", "26": "²⁶", "27": "²⁷", "28": "²⁸", "29": "²⁹",
+    "30": "³⁰"
+}
 
 def standardize_physics_variables(text):
     # Dictionary of replacements
@@ -24,6 +38,16 @@ def standardize_physics_variables(text):
         text = re.sub(old, new, text)
     
     return text
+
+def replace_with_subscripts(text):
+    # Replace occurrences of ^ followed by numbers with the subscript equivalent
+    def subscript_replacement(match):
+        number = match.group(1)  # Get the number after ^
+        return subscript_map.get(number, match.group(0))  # Return the corresponding subscript or original if not found
+
+    return re.sub(r'\^(-?\d+)', subscript_replacement, text)
+
+
 
 def process_physics_response():
     global user_query
@@ -54,6 +78,7 @@ def process_physics_response():
         # Remove the "---" separators
         message = message.replace("---", "")
 
+        
         # Handle LaTeX-style text commands
         message = re.sub(r'\\text\{([^}]+)\}', r'\1', message)
 
@@ -68,19 +93,8 @@ def process_physics_response():
         message = message.replace("cdot", "×")
 
         # Other replacements
-        message = (message.replace("*", "×")
-                   .replace("###", "")
-                   .replace("\\", "")
-                   .replace("times", "×")
-                   .replace("××", "×")
-                   .replace("[", "")
-                   .replace("]", "")
-                   .replace("((", "(")
-                   .replace("))", ")")
-                   .replace("sqrt", "√")
-                   .replace("×", "")
-                   .replace("cdot", "×"))
-        
+        message = re.sub(r'\(\(', '(', message)  # Replace ((
+        message = re.sub(r'\)\)', ')', message)
         
         # Add multiplication signs between numbers and parentheses
         message = re.sub(r'(\d+)\s*($$|$$)', r'\1 × \2', message)
@@ -92,10 +106,38 @@ def process_physics_response():
         # Ensure proper spacing around × symbol
         message = re.sub(r'(\S)\s*×\s*(\S)', r'\1 × \2', message)
 
+        # Improve handling of decimal fractions
+        message = re.sub(r'(\d+)\.(\d+)\s*/\s*(\d+)\.(\d+)', r'(\1.\2/\3.\4)', message)
+        message = re.sub(r'(\d+(?:\.\d+)?)\s*/\s*(\d+(?:\.\d+)?)', r'(\1/\2)', message)
 
-        # Standardize physics variables
         message = standardize_physics_variables(message)
 
+        #Apply subscript replacements
+        message = replace_with_subscripts(message)
+
+        message = (message.replace("*", "×")
+                   .replace("###", "")
+                   .replace("\\", "")
+                   .replace("times", "×")
+                   .replace("××", "×")
+                   .replace("[", "")
+                   .replace("]", "")
+                   .replace("((", "(")
+                   .replace("))", ")")
+                   .replace("sqrt", "√")
+                   .replace("cdot", "×")
+                   .replace(" , ", "")
+                   .replace("/", " / ")
+                   .replace("^2", "²")
+                   .replace(" lambda", " λ")
+                   .replace("  ", " ")
+                   .replace("pi","π")
+                   .replace(".(", ".")
+                   .replace(").","."))
+        
+        message = re.sub(r'^\s*×|\s*×\s*$', '', message, flags=re.MULTILINE)
+        # Standardize physics variables
+        message.replace("((", "(").replace("))",")")
         lines = message.split('\n')
 
         for line in lines:
