@@ -7,13 +7,20 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
         <script>
             function solveProblem() {
-                // Send a POST request to the Flask backend to run the Python script
+                const problem = document.getElementById("problem").value;  // Get problem input
+                
+                // Send a POST request to the Flask backend with the user input
                 fetch('/solve', {
-                    method: 'POST'
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ problem: problem })  // Send the problem as JSON
                 })
                 .then(response => response.json())
                 .then(data => {
                     console.log(data.message);  // Print the response from the backend
+                    document.getElementById("solution").value = data.solution;  // Display solution
                 });
             }
 
