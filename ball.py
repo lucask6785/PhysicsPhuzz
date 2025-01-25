@@ -1,4 +1,5 @@
 import pygame
+import pygame.freetype
 import pymunk
 import pymunk.pygame_util
 import math
@@ -28,16 +29,24 @@ class Ball:
         shape.friction = self.friction
         space.add(body, shape)
         return body
-    
-def draw_arrow(screen, body, screen_height):
+
+def draw_arrow(screen, body, screen_height, font):
     velocity = body.velocity
     position = body.position
     angle = math.atan2(velocity.y, velocity.x)
     length = velocity.length / 10  # Scale the length of the arrow
 
+    # Calculate positions
     arrow_head = (position.x + length * math.cos(angle), screen_height - position.y - length * math.sin(angle))
     arrow_tail = (position.x, screen_height - position.y)
+    
+    # Calculate midpoint for text placement
+    text_pos = (
+        (arrow_tail[0] + arrow_head[0])/2 + 10 * math.cos(angle + math.pi/2),
+        (arrow_tail[1] + arrow_head[1])/2 + 10 * math.sin(angle + math.pi/2)
+    )
 
+    # Draw arrow
     pygame.draw.line(screen, (255, 0, 0), arrow_tail, arrow_head, 2)
     pygame.draw.polygon(screen, (255, 0, 0), [
         (arrow_head[0] + 5 * math.cos(angle + math.pi / 2), arrow_head[1] - 5 * math.sin(angle + math.pi / 2)),
@@ -45,9 +54,17 @@ def draw_arrow(screen, body, screen_height):
         (arrow_head[0] + 10 * math.cos(angle), arrow_head[1] - 10 * math.sin(angle))
     ])
 
+    # Calculate and draw velocity magnitude
+    velocity_mag = round(velocity.length, 1)  # In pymunk units
+    text_surface, _ = font.render(f"{velocity_mag} px/s", (0, 0, 0))
+    screen.blit(text_surface, text_pos)
+
 def bouncy_ball(num_balls, args_list, gravity):
     # Initialize Pygame
     pygame.init()
+    pygame.freetype.init()
+    font = pygame.freetype.SysFont('Arial', 16)
+
     screen_width, screen_height = 800, 600
     screen = pygame.display.set_mode((screen_width, screen_height))
     pygame.display.set_caption("Physics Simulation")
@@ -87,7 +104,7 @@ def bouncy_ball(num_balls, args_list, gravity):
         for i in range(num_balls):
             ball_pos = int(balls[i].object.position.x), screen_height - int(balls[i].object.position.y)
             pygame.draw.circle(screen, (0, 0, 255), ball_pos, balls[i].radius)
-            draw_arrow(screen, balls[i].object, screen_height)
+            draw_arrow(screen, balls[i].object, screen_height, font)
         
         pygame.display.flip()
         clock.tick(60)
@@ -106,8 +123,10 @@ def create_walls(space, width, height):
         wall.friction = 0.5
     space.add(*walls)
 
-num_balls = 1
-args_list = [{'x': 200,'y': 300,'vx': 500,'vy': 0,'ax': 0,'ay': 0,'elasticity': 1,'friction': 0.0,'mass': 2,'radius': 15}]
+num_balls = 3
+args_list = [{'x': 200,'y': 300,'vx': 100,'vy': 0,'ax': 0,'ay': 0,'elasticity': 1,'friction': 0.0,'mass': 2,'radius': 15},
+             {'x': 600,'y': 300,'vx': 300,'vy': 0,'ax': 0,'ay': 0,'elasticity': 1,'friction': 0.0,'mass': 2,'radius': 15},
+             {'x': 400,'y': 300,'vx': 500,'vy': 0,'ax': 0,'ay': 0,'elasticity': 1,'friction': 0.0,'mass': 2,'radius': 15}]
 
 def main():
     bouncy_ball(num_balls, args_list, -981)
