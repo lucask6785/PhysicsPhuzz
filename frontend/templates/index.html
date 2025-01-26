@@ -10,6 +10,17 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <!-- Include MathQuill JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathquill/0.10.1/mathquill.min.js"></script>
+    <script src="{{ url_for('static', filename='visualization.js') }}"></script>
+    <!-- Add p5.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+
+<!-- Add a canvas for visualization -->
+<div class="right-panel">
+    <div class="visualization" id="visualization-container">
+        <div id="visualization-canvas"></div>
+    </div>
+</div>
+
     <script>
         let mathField; // Global variable to store the MathQuill instance
 
@@ -101,50 +112,42 @@
 
         // Your existing JavaScript code...
         function solveProblem() {
-            const problem = document.getElementById("problem").value;
-            const solveButton = document.getElementById("solve-button");
-            const stepsButton = document.getElementById("show-steps-button");
+    const problem = document.getElementById("problem").value;
+    const solveButton = document.getElementById("solve-button");
 
-            if (!problem.trim()) {
-                alert("Error: Please enter a problem!");
-                return;
-            }
+    if (!problem.trim()) {
+        alert("Error: Please enter a problem!");
+        return;
+    }
 
-            solveButton.innerText = "Solving...";
-            solveButton.disabled = true;
+    solveButton.innerText = "Solving...";
+    solveButton.disabled = true;
 
-            fetch('/solve', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ problem: problem })
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data.message);
-                document.getElementById("solution").value = data.solution;
+    fetch('/solve', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ problem: problem })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data.message);
+        document.getElementById("solution").value = data.solution;
 
-                const stepsSection = document.getElementById("steps-section");
-                if (data.steps) {
-                    stepsSection.innerHTML = `<p>${data.steps}</p>`;
-                    stepsSection.style.display = "flex"; // Ensure steps are visible
-                    stepsButton.style.display = "inline-block"; // Ensure the button is visible
-                    stepsButton.style.visibility = "visible";
-                    stepsButton.innerText = "Hide Steps ⬅️"; // Default to "Hide Steps"
-                }
+        // Fetch the latest variables for visualization
+        fetchAndVisualize();
 
-                solveButton.innerText = "Solve! ⬇️";
-                solveButton.disabled = false;
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert("An error occurred while solving the problem. Please try again.");
-                solveButton.innerText = "Solve! ⬇️";
-                solveButton.disabled = false;
-            });
-        }
-
+        solveButton.innerText = "Solve! ⬇️";
+        solveButton.disabled = false;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert("An error occurred while solving the problem. Please try again.");
+        solveButton.innerText = "Solve! ⬇️";
+        solveButton.disabled = false;
+    });
+}
         function toggleSteps() {
             const stepsSection = document.getElementById("steps-section");
             const stepsButton = document.getElementById("show-steps-button");
@@ -195,9 +198,13 @@
                 <!-- Steps will be dynamically populated here -->
             </div>
         </div>
+        <!-- Add p5.js library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+
+<!-- Add a canvas for visualization -->
         <div class="right-panel">
             <div class="visualization">
-                <iframe src="{{ url_for('static', filename='build/web/index.html') }}" width="640" height="480"></iframe>
+                <div id="visualization-canvas"></div>
             </div>
         </div>
     </div>
