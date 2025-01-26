@@ -4,4 +4,4 @@ matplotlib==3.7.2
 openai
 pymunk
 pygame
-
+requests
