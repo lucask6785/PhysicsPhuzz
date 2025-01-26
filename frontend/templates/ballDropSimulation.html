@@ -75,7 +75,7 @@
             World.add(world, ball);
 
             // Apply horizontal velocity to make the ball loop
-            Body.setVelocity(ball, { x: 5, y: 0 }); // Move the ball to the right
+            Body.setVelocity(ball, { x: 0, y: 0 }); // Move the ball to the right
         }
 
         // Start the engine and renderer
@@ -120,21 +120,26 @@
             if (block1) World.remove(world, block1);
             if (block2) World.remove(world, block2);
 
-            // Create blocks on the ground
-            const blockSize1 = 80;
-            const blockSize2 = 160;
+            // Create smaller blocks closer together
+            const blockSize1 = 40; // Smaller block size
+            const blockSize2 = 40; // Smaller block size
             const groundY = window.innerHeight - 40; // Ground level
 
-            block1 = Bodies.rectangle(window.innerWidth * 0.2, groundY - blockSize1 / 2, blockSize1, blockSize1, {
+            // Position blocks closer to the center
+            block1 = Bodies.rectangle(window.innerWidth * 0.3, groundY - blockSize1 / 2, blockSize1, blockSize1, {
                 isStatic: false,
                 friction: 0, // No friction
                 frictionStatic: 0, // No static friction
+                restitution: 1, // Perfectly elastic collision
+                density: 0.04, // Consistent density
                 render: { fillStyle: '#00b894' }
             });
-            block2 = Bodies.rectangle(window.innerWidth * 0.8, groundY - blockSize2 / 2, blockSize2, blockSize2, {
+            block2 = Bodies.rectangle(window.innerWidth * 0.7, groundY - blockSize2 / 2, blockSize2, blockSize2, {
                 isStatic: false,
                 friction: 0, // No friction
                 frictionStatic: 0, // No static friction
+                restitution: 1, // Perfectly elastic collision
+                density: 0.08, // Increased density (heavier block)
                 render: { fillStyle: '#0984e3' }
             });
 
@@ -184,7 +189,7 @@
             pendulum = { bob, constraint };
 
             // Give the pendulum an initial push to start swinging
-            Body.setVelocity(bob, { x: 10, y: 0 });
+            Body.setVelocity(bob, { x: 20, y: 0 });
         }
 
         // Make the ball loop across the screen
