@@ -11,6 +11,7 @@ import pymunk.pygame_util
 import math
 import pygame.freetype
 
+
 # Constants
 SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600
 GRAVITY = -981  # Pixels per second squared (y-down coordinate system)
@@ -173,8 +174,8 @@ class PendulumSimulation(BaseSimulation):
         
         # Configure pendulum bob in screen coordinates
         bob_config = {
-            'x': 500,  # Initial position x (100px right of anchor)
-            'y': 300,  # Initial position y (same as anchor)
+            'x': 500,
+            'y': 300,
             'vx': 0,
             'vy': 0,
             'ax': 0,
@@ -619,22 +620,14 @@ class SlopedSurfaceSimulation(BaseSimulation):
         pygame.quit()
 
 # Simulation Configurations
-BALL_CONFIGS = [
-    {   # Large ball with horizontal velocity
-        'x': 400, 'y': 100,
-        'vx': 500, 'vy': 0,
-        'ax': 0, 'ay': 0,
-        'elasticity': 0.8, 'friction': 1,
-        'mass': 2, 'radius': 15
-    }
-]
+BALL_CONFIGS = []
 
 def main():
     """Main entry point for the application"""
     # Select simulation scenario:
     # simulation = PendulumSimulation()
     # simulation = FreeBallsSimulation(BALL_CONFIGS, GRAVITY)
-    simulation = SlopedSurfaceSimulation()
+    simulation = FreeBallsSimulation(BALL_CONFIGS, GRAVITY)
     simulation.run_main_loop()
 
 if __name__ == "__main__":
