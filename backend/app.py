@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-from scripts import *  # Assuming the necessary functions are in this module
+from Chat_API import *  # Assuming the necessary functions are in this module
 
 app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
 global VARIABLES
@@ -19,7 +19,7 @@ def solve_route():
     print('solve button clicked')
 
     # Solve the problem and get the solution and steps
-    solution, steps, variables = solve(problem)
+    solution, steps, variables = process_physics_response(problem)
     print(solution)
     global VARIABLES
     VARIABLES = variables
@@ -30,12 +30,6 @@ def solve_route():
         'steps': steps,
         'message': 'Solution calculated!'
     })
-
-# Route to handle the 'Show Steps' button functionality
-@app.route('/show-steps', methods=['POST'])
-def show_steps_route():
-    return show_steps()  # Call the show_steps function from scripts.py
-
 
 if __name__ == '__main__':
     app.run(debug=True)
