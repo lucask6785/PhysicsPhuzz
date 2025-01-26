@@ -12,7 +12,7 @@
     <canvas id="simulation"></canvas>
     <script>
         // Matter.js setup
-        const { Engine, Render, Runner, World, Bodies, Body } = Matter;
+        const { Engine, Render, Runner, World, Bodies, Body, Constraint } = Matter;
 
         // Track solve state
         let solveState = 0;
@@ -75,7 +75,7 @@
             World.add(world, ball);
 
             // Apply horizontal velocity to make the ball loop
-            Body.setVelocity(ball, { x: 0, y: 0 }); // Move the ball to the right
+            Body.setVelocity(ball, { x: 5, y: 0 }); // Move the ball to the right
         }
 
         // Start the engine and renderer
@@ -98,6 +98,11 @@
                     // Second solve - remove ball and spawn squares
                     if (ball) World.remove(world, ball); // Remove the ball
                     setupCollision();
+                } else if (solveState === 3) {
+                    // Third solve - remove squares and start pendulum simulation
+                    if (block1) World.remove(world, block1);
+                    if (block2) World.remove(world, block2);
+                    setupPendulum();
                     solveState = 0; // Reset counter
                 }
             }
@@ -138,7 +143,48 @@
 
             // Apply velocities to make the blocks move toward each other
             Body.setVelocity(block1, { x: 5, y: 0 }); // Move block1 to the right
-            Body.setVelocity(block2, { x: 0, y: 0 }); // Move block2 to the left
+            Body.setVelocity(block2, { x: -5, y: 0 }); // Move block2 to the left
+        }
+
+        // Add pendulum
+        let pendulum;
+        function setupPendulum() {
+            // Remove existing pendulum if any
+            if (pendulum) {
+                World.remove(world, pendulum.bob);
+                World.remove(world, pendulum.constraint);
+            }
+
+            // Create pendulum
+            const pendulumLength = 300; // Length of the pendulum
+            const bobRadius = 30; // Radius of the pendulum bob
+            const anchor = { x: window.innerWidth / 2, y: 100 }; // Anchor point for the pendulum
+            const bob = Bodies.circle(anchor.x + pendulumLength, anchor.y + pendulumLength, bobRadius, {
+                friction: 0, // No friction
+                frictionStatic: 0, // No static friction
+                restitution: 1, // Perfect elasticity (no energy loss)
+                render: { fillStyle: '#ff4757' }
+            });
+            const constraint = Constraint.create({
+                pointA: anchor,
+                bodyB: bob,
+                length: pendulumLength,
+                stiffness: 1, // Stiffness of the string
+                damping: 0, // No damping (prevents energy loss)
+                render: {
+                    strokeStyle: '#000000', // Black string
+                    lineWidth: 2
+                }
+            });
+
+            // Add pendulum to the world
+            World.add(world, [bob, constraint]);
+
+            // Store pendulum objects for later removal
+            pendulum = { bob, constraint };
+
+            // Give the pendulum an initial push to start swinging
+            Body.setVelocity(bob, { x: 10, y: 0 });
         }
 
         // Make the ball loop across the screen

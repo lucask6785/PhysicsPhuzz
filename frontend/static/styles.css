@@ -550,6 +550,7 @@ button:hover {
     padding: 5px 10px;
     font-size: 14px;
     cursor: pointer;
+    display: none;
 }
 
 #upload-button:hover {
