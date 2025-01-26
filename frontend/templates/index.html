@@ -261,17 +261,13 @@ function insertMath() {
             const stepsSection = document.getElementById("steps-section");
             const stepsButton = document.getElementById("show-steps-button");
 
-            if (stepsSection.style.visibility === "visible") {
+            if (stepsSection.style.display === "flex") {
                 // Hide the steps section
-                stepsSection.style.visibility = "hidden";
                 stepsSection.style.display = "none";
                 stepsButton.innerText = "Show Steps ➡️"; // Change button text
             } else {
                 // Show the steps section
                 stepsSection.style.display = "flex";
-                setTimeout(() => {
-                    stepsSection.style.visibility = "visible";
-                }, 10);
                 stepsButton.innerText = "Hide Steps ⬅️"; // Change button text
             }
         }

@@ -233,7 +233,6 @@ textarea {
     transform: translateX(0) rotateY(-30deg);  /* Initially rotate slightly to mimic a book spine */
     transform-origin: left center;  /* Make the transform origin on the left side */
     transition: transform 0.5s ease, width 0.5s ease;  /* Smooth transition for sliding and rotation */
-    display: flex;
     flex-direction: column;
     justify-content: center;   /* Center the content */
     align-items: center;       /* Center the content */
@@ -464,6 +463,7 @@ button:hover {
     transform-origin: left center;  /* Make the transform origin on the left side */
     transition: transform 0.5s ease, width 0.5s ease;  /* Smooth transition for sliding and rotation */
     display: flex;
+    display: none;
     flex-direction: column;
     justify-content: center;   /* Center the content */
     align-items: center;       /* Center the content */
