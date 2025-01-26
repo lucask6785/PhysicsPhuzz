@@ -35,15 +35,21 @@
         // Create ground and walls
         const ground = Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, 40, {
             isStatic: true,
-            render: { fillStyle: '#555' }
+            render: { fillStyle: '#555' },
+            friction: 0, // No friction
+            frictionStatic: 0 // No static friction
         });
         const leftWall = Bodies.rectangle(0, window.innerHeight / 2, 40, window.innerHeight, {
             isStatic: true,
-            render: { fillStyle: '#555' }
+            render: { fillStyle: '#555' },
+            friction: 0, // No friction
+            frictionStatic: 0 // No static friction
         });
         const rightWall = Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 40, window.innerHeight, {
             isStatic: true,
-            render: { fillStyle: '#555' }
+            render: { fillStyle: '#555' },
+            friction: 0, // No friction
+            frictionStatic: 0 // No static friction
         });
 
         // Add ground and walls to the world
@@ -55,6 +61,8 @@
         let ballOptions = {
             density: 0.04,
             restitution: 0.6,
+            friction: 0, // No friction
+            frictionStatic: 0, // No static friction
             render: {
                 fillStyle: '#ff4757'
             }
@@ -65,6 +73,9 @@
             if (ball) World.remove(world, ball);
             ball = Bodies.circle(320, height - 40, ballRadius, ballOptions);
             World.add(world, ball);
+
+            // Apply horizontal velocity to make the ball loop
+            Body.setVelocity(ball, { x: 0, y: 0 }); // Move the ball to the right
         }
 
         // Start the engine and renderer
@@ -111,10 +122,14 @@
 
             block1 = Bodies.rectangle(window.innerWidth * 0.2, groundY - blockSize1 / 2, blockSize1, blockSize1, {
                 isStatic: false,
+                friction: 0, // No friction
+                frictionStatic: 0, // No static friction
                 render: { fillStyle: '#00b894' }
             });
             block2 = Bodies.rectangle(window.innerWidth * 0.8, groundY - blockSize2 / 2, blockSize2, blockSize2, {
                 isStatic: false,
+                friction: 0, // No friction
+                frictionStatic: 0, // No static friction
                 render: { fillStyle: '#0984e3' }
             });
 
@@ -123,8 +138,22 @@
 
             // Apply velocities to make the blocks move toward each other
             Body.setVelocity(block1, { x: 5, y: 0 }); // Move block1 to the right
-            Body.setVelocity(block2, { x: -5, y: 0 }); // Move block2 to the left
+            Body.setVelocity(block2, { x: 0, y: 0 }); // Move block2 to the left
         }
+
+        // Make the ball loop across the screen
+        Matter.Events.on(engine, 'beforeUpdate', function () {
+            if (ball) {
+                // If the ball goes off the right side, move it to the left side
+                if (ball.position.x > window.innerWidth + ballRadius) {
+                    Body.setPosition(ball, { x: -ballRadius, y: ball.position.y });
+                }
+                // If the ball goes off the left side, move it to the right side
+                if (ball.position.x < -ballRadius) {
+                    Body.setPosition(ball, { x: window.innerWidth + ballRadius, y: ball.position.y });
+                }
+            }
+        });
     </script>
 </body>
 </html>
