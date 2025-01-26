@@ -91,20 +91,24 @@
                 // First solve - reset ball drop
                     if (block1) World.remove(world, block1);
                     if (block2) World.remove(world, block2);
-                    if (pendulum) World.remove(world, pendulum);
+                    if (pendulum) {
+                        World.remove(world, pendulum.bob);
+                        World.remove(world, pendulum.constraint);
+                    }
                     createBall(json['y']);
                 } else if (json['type'] === 'collision'){                     // Second solve - remove ball and spawn squares
                     if (ball) World.remove(world, ball); // Remove the ball
-                    if (block1) World.remove(world, block1);
-                    if (block2) World.remove(world, block2);
-                    if (pendulum) World.remove(world, pendulum);
-                    setupCollision();
+                    if (pendulum) {
+                        World.remove(world, pendulum.bob);
+                        World.remove(world, pendulum.constraint);
+                    }
+                    setupCollision(json);
                 } else if (json['type'] === 'pendulum'){ 
                 // Third solve - remove squares and start pendulum simulation
                     if (block1) World.remove(world, block1);
                     if (block2) World.remove(world, block2);
                     if (ball) World.remove(world, ball);
-                    setupPendulum();
+                    setupPendulum(json);
                 }
             }
             solve();
@@ -117,18 +121,18 @@
 
         // Add collision blocks
         let block1, block2;
-        function setupCollision() {
+        function setupCollision(data) {
             // Remove existing blocks if any
             if (block1) World.remove(world, block1);
             if (block2) World.remove(world, block2);
 
             // Create smaller blocks closer together
-            const blockSize1 = 40; // Smaller block size
-            const blockSize2 = 40; // Smaller block size
+            const blockSize1 = 20*data['mass']; // Smaller block size
+            const blockSize2 = 60; // Smaller block size
             const groundY = window.innerHeight - 40; // Ground level
 
             // Position blocks closer to the center
-            block1 = Bodies.rectangle(window.innerWidth * 0.3, groundY - blockSize1 / 2, blockSize1, blockSize1, {
+            block1 = Bodies.circle(window.innerWidth * 0.3, groundY - blockSize1 / 2, blockSize1, {
                 isStatic: false,
                 friction: 0, // No friction
                 frictionStatic: 0, // No static friction
@@ -136,7 +140,7 @@
                 density: 0.04, // Consistent density
                 render: { fillStyle: '#00b894' }
             });
-            block2 = Bodies.rectangle(window.innerWidth * 0.7, groundY - blockSize2 / 2, blockSize2, blockSize2, {
+            block2 = Bodies.circle(window.innerWidth * 0.7, groundY - blockSize2 / 2, blockSize2, {
                 isStatic: false,
                 friction: 0, // No friction
                 frictionStatic: 0, // No static friction
@@ -149,13 +153,12 @@
             World.add(world, [block1, block2]);
 
             // Apply velocities to make the blocks move toward each other
-            Body.setVelocity(block1, { x: 5, y: 0 }); // Move block1 to the right
-            Body.setVelocity(block2, { x: -5, y: 0 }); // Move block2 to the left
+            Body.setVelocity(block1, { x: data["vx"], y: 0 }); // Move block1 to the right // Move block2 to the left
         }
 
         // Add pendulum
         let pendulum;
-        function setupPendulum() {
+        function setupPendulum(data) {
             // Remove existing pendulum if any
             if (pendulum) {
                 World.remove(world, pendulum.bob);
@@ -163,10 +166,10 @@
             }
 
             // Create pendulum
-            const pendulumLength = 300; // Length of the pendulum
-            const bobRadius = 30; // Radius of the pendulum bob
+            const pendulumLength = 100; // Length of the pendulum
+            const bobRadius = 15; // Radius of the pendulum bob
             const anchor = { x: window.innerWidth / 2, y: 100 }; // Anchor point for the pendulum
-            const bob = Bodies.circle(anchor.x + pendulumLength, anchor.y + pendulumLength, bobRadius, {
+            const bob = Bodies.circle(anchor.x + pendulumLength, anchor.y, bobRadius, {
                 friction: 0, // No friction
                 frictionStatic: 0, // No static friction
                 restitution: 1, // Perfect elasticity (no energy loss)
@@ -191,7 +194,6 @@
             pendulum = { bob, constraint };
 
             // Give the pendulum an initial push to start swinging
-            Body.setVelocity(bob, { x: 20, y: 0 });
         }
 
         // Make the ball loop across the screen
