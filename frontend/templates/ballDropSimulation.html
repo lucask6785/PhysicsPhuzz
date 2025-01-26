@@ -92,7 +92,7 @@
                     if (block1) World.remove(world, block1);
                     if (block2) World.remove(world, block2);
                     if (pendulum) World.remove(world, pendulum);
-                    createBall(100);
+                    createBall(json['y']);
                 } else if (json['type'] === 'collision'){                     // Second solve - remove ball and spawn squares
                     if (ball) World.remove(world, ball); // Remove the ball
                     if (block1) World.remove(world, block1);
