@@ -24,8 +24,8 @@ class Variable(db.Model):
     friction = db.Column(db.Float, nullable=False)
     type = db.Column(db.String(80), nullable=False)
 
-    def __repr__(self):
-        return '<Variable %r>' % self.id  
+    def to_dict(self):
+        return {column.name: getattr(self, column.name) for column in self.__table__.columns}
 
 # Route to serve the HTML file
 @app.route('/')
@@ -61,7 +61,7 @@ def solve_route():
         })
     if request.method == "GET":
         variables = Variable.query.all()
-        return jsonify(variables[-1])
+        return jsonify(variables[-1].to_dict())
 
 if __name__ == '__main__':
     app.run(debug=True)
