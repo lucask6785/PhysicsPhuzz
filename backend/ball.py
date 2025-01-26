@@ -101,23 +101,16 @@ def create_walls(space, width, height):
         wall.friction = 0.5
     space.add(*walls)
 
-def create_pendulum(space, anchor_point, bob_position, bob_velocity):
-    mass = 1
-    radius = 15
-    moment = pymunk.moment_for_circle(mass, 0, radius)
-    bob = pymunk.Body(mass, moment)
-    bob.position = bob_position
-    bob.velocity = bob_velocity
-    bob_shape = pymunk.Circle(bob, radius)
-    bob_shape.elasticity = 0.9
-    bob_shape.friction = 0.5
-    space.add(bob, bob_shape)
-
-    # Pendulum joint
-    joint = pymunk.PinJoint(space.static_body, bob, anchor_point, (0, 0))
+def create_pendulum(space, anchor_point, bob_args, screen_height):
+    # Create pendulum bob using Ball class
+    bob = Ball(bob_args, screen_height)
+    bob.object = bob.create_ball(space)
+    
+    # Add pendulum joint/constraint
+    joint = pymunk.PinJoint(space.static_body, bob.object, anchor_point)
     space.add(joint)
-
-    return bob
+    
+    return bob  # Return Ball object instead of raw pymunk body
 
 
 ################################################################################################
@@ -126,6 +119,9 @@ def create_pendulum(space, anchor_point, bob_position, bob_velocity):
 def pendulum_simulation():
     # Initialize Pygame
     pygame.init()
+    pygame.freetype.init()
+    font = pygame.freetype.SysFont('Arial', 20)
+
     screen_width, screen_height = 800, 600
     screen = pygame.display.set_mode((screen_width, screen_height))
     pygame.display.set_caption("Pendulum Simulation")
@@ -134,14 +130,28 @@ def pendulum_simulation():
 
     # Initialize Pymunk space
     space = pymunk.Space()
-    space.gravity = (0, 981)  # Gravity pointing downwards
+    space.gravity = (0, -981)  # Gravity pointing downwards
 
     # Create physics objects
     create_walls(space, screen_width, screen_height)
+    
+    # Define pendulum parameters using Ball class structure
     anchor_point = (400, 300)
-    bob_position = (500, 300)
-    bob_velocity = (0, 0)
-    bob = create_pendulum(space, anchor_point, bob_position, bob_velocity)
+    bob_args = {
+        'x': 500,  # Initial position x (100px right of anchor)
+        'y': 300,  # Initial position y (same height as anchor)
+        'vx': 0,   # Initial horizontal velocity
+        'vy': 0,   # Initial vertical velocity
+        'ax': 0,   # No additional acceleration
+        'ay': 0,
+        'mass': 1,
+        'radius': 15,
+        'elasticity': 0.9,
+        'friction': 0.5
+    }
+    
+    # Create pendulum using Ball class
+    pendulum_bob = create_pendulum(space, anchor_point, bob_args, screen_height)
 
     running = True
     while running:
@@ -155,7 +165,12 @@ def pendulum_simulation():
         # Draw everything
         screen.fill((255, 255, 255))
         space.debug_draw(draw_options)
-        draw_arrow(screen, bob)
+        
+        # Draw velocity arrow using Ball's pymunk body
+        draw_arrow(screen, pendulum_bob.object, screen_height, font, True)
+        
+        # Draw anchor point
+        pygame.draw.circle(screen, (255, 0, 0), anchor_point, 5)
 
         pygame.display.flip()
         clock.tick(60)
