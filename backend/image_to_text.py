@@ -1,42 +1,74 @@
 from flask import Flask, request, jsonify
-import requests
 import os
+import requests
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
-# Set your OCR.space API key here
-OCR_API_KEY = "K89188050688957"
+# Configurations
+app.config['UPLOAD_FOLDER'] = 'uploads'
+app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
 
-@app.route('/process_image', methods=['POST'])
-def process_image():
-    data = request.get_json()
-    image_base64 = data.get('image', None)
+# OCR API URL and API Key
+OCR_API_URL = 'https://api.ocr.space/parse/image'  # Replace with the actual OCR API URL
+OCR_API_KEY = 'K89188050688957'  # Insert your OCR API key here
 
-    if not image_base64:
-        return jsonify({"error": "No image provided"}), 400
+# File extension validation
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
-    # Remove the "data:image/png;base64," prefix if present
-    if ',' in image_base64:
-        image_base64 = image_base64.split(',')[1]
+@app.route('/upload-image', methods=['POST'])
+def upload_image():
+    # Check if 'image' exists in the request files
+    if 'image' not in request.files:
+        return jsonify({'success': False, 'message': 'No file part'})
 
-    # Send the image to OCR.space API
-    response = requests.post(
-        'https://api.ocr.space/parse/image',
-        files={
-            'base64image': image_base64,
-        },
-        data={
-            'apikey': OCR_API_KEY,
-        },
-    )
+    file = request.files['image']
+    
+    # Check if the file is empty
+    if file.filename == '':
+        return jsonify({'success': False, 'message': 'No selected file'})
 
-    # Process the OCR response
-    if response.status_code == 200:
-        ocr_data = response.json()
-        extracted_text = ocr_data.get("ParsedResults", [{}])[0].get("ParsedText", "")
-        return jsonify({"text": extracted_text})
-    else:
-        return jsonify({"error": "Failed to process the image"}), response.status_code
+    # Validate file type
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        
+        # Save the uploaded file
+        file.save(filepath)
 
+        # Send the image to the OCR API
+        with open(filepath, 'rb') as image_file:
+            files = {'file': (filename, image_file, 'image/jpeg')}  # Adjust MIME type if necessary
+            headers = {'Authorization': f'Bearer {OCR_API_KEY}'}
+            response = requests.post(OCR_API_URL, files=files, headers=headers)
+
+        # Handle OCR response
+        if response.status_code == 200:
+            data = response.json()
+            extracted_text = data.get('ParsedResults', [{}])[0].get('ParsedText', '').strip()
+
+            # Print the extracted text
+            print(f"Extracted Text:\n{extracted_text}")
+            
+            return jsonify({'success': True, 'text': extracted_text})
+        else:
+            return jsonify({'success': False, 'message': 'OCR API failed', 'error': response.text})
+
+    return jsonify({'success': False, 'message': 'Invalid file type'})
+
+# Run the Flask app
 if __name__ == '__main__':
+    # Add the path to your image file directly
+    image_file_path = "C:\\Users\\jaron\\OneDrive\\Desktop\\Website\\SwampHacksX\\backend\\assets"  # Path to your image file
+    
+    # Send image as a POST request to the upload-image route
+    with open(image_file_path, 'rb') as f:
+        files = {'image': f}
+        response = requests.post('http://127.0.0.1:5000/upload-image', files=files)  # Change URL if needed
+    
+    # Print response from the API (extracted text)
+    print(response.json())
+
+    # Start the Flask app in debug mode
     app.run(debug=True)
