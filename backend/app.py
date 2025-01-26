@@ -83,7 +83,9 @@ def solve_route():
         })
     if request.method == "GET":
         variables = Variable.query.all()
-        return jsonify(variables[-1].to_dict())
+        if (variables[-1].type == "collision"):
+            return jsonify([variables[-2].to_dict(), variables[-1].to_dict()])
+        return jsonify([variables[-1].to_dict()])
 
 if __name__ == '__main__':
     app.run(debug=True)
