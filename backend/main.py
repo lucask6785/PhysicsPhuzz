@@ -644,7 +644,7 @@ def variable():
     data =  json.load(ies)
     global VARIABLES
     VARIABLES = data
-    VARIABLES = {'type': 'free_balls', 'variables': {'x': 500,'y': 300,'vx': 0,'vy': 0,'ax': 0,'ay': 0,'mass': 1,'radius': 15,'elasticity': 0.9,'friction': 0.5}, 'id': 0}
+    VARIABLES = {'type': 'free-ball', 'variables': {'x': 500,'y': 300,'vx': 0,'vy': 0,'ax': 0,'ay': 0,'mass': 1,'radius': 15,'elasticity': 0.9,'friction': 0.5}, 'id': 0}
 
 # Game loop
 async def main():
@@ -686,7 +686,7 @@ async def main():
                 pygame.time.Clock().tick(60)
                 await asyncio.sleep(0)
                 count += 1
-                if count == 600:
+                if count == 300:
                     variable()
                     print(VARIABLES)
                     if VARIABLES:
@@ -698,7 +698,7 @@ async def main():
             await asyncio.sleep(0)
             break
 
-        elif VARIABLES['type'] == "free_balls":
+        elif VARIABLES['type'] == "free-ball":
             simulation = FreeBallsSimulation(BALL_CONFIGS, GRAVITY)
 
         else:
