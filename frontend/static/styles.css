@@ -347,8 +347,9 @@ button:hover {
 }
 
 #math-editor-button {
+    position: absolute;
     bottom: 20px; /* Adjust as needed */
-    right: 10px; /* Adjust as needed */
+    right: 5px; /* Adjust as needed */
     background-color: #e8ac4c;
     color: white;
     border: none;
