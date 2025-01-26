@@ -84,28 +84,30 @@
 
         // Handle messages from parent window
         window.addEventListener('message', function (event) {
-            if (event.data.variables) {
-                const { height } = event.data.variables;
-                createBall(height || 100);
-            }
-            if (event.data.action === 'solve') {
-                solveState++;
-
-                if (solveState === 1) {
-                    // First solve - reset ball drop
-                    createBall(100);
-                } else if (solveState === 2) {
-                    // Second solve - remove ball and spawn squares
-                    if (ball) World.remove(world, ball); // Remove the ball
-                    setupCollision();
-                } else if (solveState === 3) {
-                    // Third solve - remove squares and start pendulum simulation
+            async function solve(){
+                const response = await fetch("http://localhost:5000/solve")
+                const json = await response.json();
+                if (json['type'] === 'free-ball'){
+                // First solve - reset ball drop
                     if (block1) World.remove(world, block1);
                     if (block2) World.remove(world, block2);
+                    if (pendulum) World.remove(world, pendulum);
+                    createBall(100);
+                } else if (json['type'] === 'collision'){                     // Second solve - remove ball and spawn squares
+                    if (ball) World.remove(world, ball); // Remove the ball
+                    if (block1) World.remove(world, block1);
+                    if (block2) World.remove(world, block2);
+                    if (pendulum) World.remove(world, pendulum);
+                    setupCollision();
+                } else if (json['type'] === 'pendulum'){ 
+                // Third solve - remove squares and start pendulum simulation
+                    if (block1) World.remove(world, block1);
+                    if (block2) World.remove(world, block2);
+                    if (ball) World.remove(world, ball);
                     setupPendulum();
-                    solveState = 0; // Reset counter
                 }
             }
+            solve();
         });
 
         // Expose reset function to parent window
