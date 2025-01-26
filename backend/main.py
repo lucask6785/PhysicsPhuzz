@@ -17,6 +17,8 @@ import urllib.request
 import json
 import pygame.freetype
 
+VARIABLES = None
+
 # Constants
 SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600
 GRAVITY = -981  # Pixels per second squared (y-down coordinate system)
@@ -639,6 +641,7 @@ BALL_CONFIGS = [
 # Initialize Pygame
 pygame.init()
 
+
 # Set initial dimensions (these will be updated dynamically)
 screen_width, screen_height = 640, 480
 screen = pygame.display.set_mode((screen_width, screen_height), pygame.RESIZABLE)
@@ -647,24 +650,23 @@ pygame.display.set_caption("Moving Ball")
 def variable():
     ies =   urllib.request.urlopen('http://localhost:5000/solve')
     data =  json.load(ies)
-    #VARIABLES = data
-    print(data)
+    global VARIABLES
+    VARIABLES = data
 
 # Game loop
 async def main():
     # Define colors
     WHITE = (255, 255, 255)
     RED = (0, 255, 0)
-
     while True:
         # Ball settings
-        if not None:
+        if not VARIABLES:
             ball_radius = 20
             ball_x = screen_width // 2
             ball_y = screen_height // 2
             ball_speed = 5  # Speed at which the ball moves
             ball_direction = 1  # 1 means moving right, -1 means moving left
-
+            count = 0
             while True:
                 screen.fill(WHITE)
 
@@ -690,8 +692,17 @@ async def main():
                 # Control the frame rate
                 pygame.time.Clock().tick(60)
                 await asyncio.sleep(0)
-    '''
+                count += 1
+                if count == 600:
+                    variable()
+                    if VARIABLES:
+                        break
         else:
+            screen.fill(WHITE)
+            pygame.display.flip()
+            await asyncio.sleep(0)
+            break
+            '''
             screen.fill(WHITE)
             velocity_display = False
             acceleration_display = False
@@ -792,5 +803,5 @@ async def main():
 
                 pygame.display.flip()
                 clock.tick(60)
-    '''
+                '''
 asyncio.run(main())
