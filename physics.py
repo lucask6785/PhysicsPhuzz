@@ -443,6 +443,181 @@ class CentripetalSimulation(BaseSimulation):
 
         pygame.quit()
 
+class SlopedSurfaceSimulation(BaseSimulation):
+    """Simulation of blocks on sloped surfaces with physics vectors"""
+    
+    def __init__(self):
+        super().__init__("Sloped Surface Simulation")
+        self.show_acceleration = False
+        self.show_velocity = False
+        self.blocks = []
+        self.slopes = []
+        self.setup_scene()
+        
+    def setup_scene(self):
+        """Initialize simulation objects"""
+        self.space.gravity = (0, -981)  # Physics-space gravity
+        
+        # Create sloped surfaces
+        self.create_slope(angle=10, length=1000, position=(0, 550))
+        
+        # Create customizable blocks
+        block_configs = [
+            {
+                'mass': 2,
+                'position': (300, 500),
+                'size': (40, 40),
+                'friction': 0.8,
+                'color': (200, 150, 100)
+            },
+            {
+                'mass': 1,
+                'position': (600, 400),
+                'size': (30, 50),
+                'friction': 0.5,
+                'color': (100, 200, 150)
+            }
+        ]
+        
+        for config in block_configs:
+            self.create_block(config)
+
+    def create_slope(self, angle, length, position):
+        """Create a sloped surface"""
+        # Convert angle to radians
+        angle_rad = math.radians(angle)
+        
+        # Calculate slope endpoints
+        x1 = position[0]
+        y1 = SCREEN_HEIGHT - position[1]
+        x2 = x1 + length * math.cos(angle_rad)
+        y2 = y1 + length * math.sin(angle_rad)
+        
+        # Create static segment
+        slope = pymunk.Segment(self.space.static_body, (x1, y1), (x2, y2), 5)
+        slope.friction = 0.1
+        slope.elasticity = 0.8
+        self.space.add(slope)
+        self.slopes.append(slope)
+
+    def create_block(self, config):
+        """Create a customizable rectangular block"""
+        mass = config['mass']
+        width, height = config['size']
+        
+        # Create physics body
+        moment = pymunk.moment_for_box(mass, (width, height))
+        body = pymunk.Body(mass, moment)
+        
+        # Convert screen position to physics coordinates
+        body.position = (
+            config['position'][0], 
+            SCREEN_HEIGHT - config['position'][1]
+        )
+        
+        # Create collision shape
+        shape = pymunk.Poly.create_box(body, (width, height))
+        shape.friction = config['friction']
+        shape.elasticity = 0.2
+        shape.color = config['color']
+        
+        self.space.add(body, shape)
+        self.blocks.append({
+            'body': body,
+            'shape': shape,
+            'config': config
+        })
+
+    def handle_input(self, event):
+        """Process keyboard input"""
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_a:
+                self.show_acceleration = not self.show_acceleration
+            elif event.key == pygame.K_v:
+                self.show_velocity = not self.show_velocity
+
+    def calculate_slope_acceleration(self, block_body, slope):
+        """Calculate acceleration component along the slope"""
+        # Get slope angle from segment coordinates
+        a = slope.a
+        b = slope.b
+        dx = b.x - a.x
+        dy = b.y - a.y
+        slope_angle = math.atan2(dy, dx)
+        
+        # Project gravity onto slope direction
+        gravity_magnitude = 981  # px/s²
+        acceleration_magnitude = gravity_magnitude * math.sin(slope_angle)
+        
+        return (
+            acceleration_magnitude * math.cos(slope_angle),
+            acceleration_magnitude * math.sin(slope_angle)
+        )
+
+    def run_main_loop(self):
+        while self.running:
+            for event in pygame.event.get():
+                self.handle_common_events(event)
+                self.handle_input(event)
+
+            # Physics step
+            self.space.step(1/60.0)
+            
+            # Rendering
+            self.screen.fill(COLORS['BACKGROUND'])
+            
+            # Draw slopes
+            for slope in self.slopes:
+                a = (slope.a.x, SCREEN_HEIGHT - slope.a.y)
+                b = (slope.b.x, SCREEN_HEIGHT - slope.b.y)
+                pygame.draw.line(self.screen, (100, 100, 100), a, b, 5)
+            
+            # Draw blocks and vectors
+            for block in self.blocks:
+                body = block['body']
+                config = block['config']
+                
+                # Get screen position and rotation
+                screen_pos = (body.position.x, SCREEN_HEIGHT - body.position.y)
+                angle = body.angle
+                
+                # Draw block
+                width, height = config['size']
+                surface = pygame.Surface((width, height), pygame.SRCALPHA)
+                surface.fill(config['color'])
+                rotated = pygame.transform.rotate(surface, math.degrees(-angle))
+                rect = rotated.get_rect(center=screen_pos)
+                self.screen.blit(rotated, rect)
+                
+                # Draw vectors
+                if self.show_velocity:
+                    velocity = (body.velocity.x, -body.velocity.y)
+                    SimulationUtils.draw_vector_arrow(
+                        self.screen, screen_pos, velocity,
+                        COLORS['VELOCITY_ARROW'], 
+                        f"{math.hypot(*velocity)/50:.2f} m/s", 
+                        self.font, 1/8
+                    )
+                
+                if self.show_acceleration:
+                    # Calculate net acceleration (a = F/m + gravity components)
+                    acceleration = (
+                        body.force.x / body.mass,
+                        -body.force.y / body.mass  # Convert to screen coordinates
+                    )
+                    
+                    SimulationUtils.draw_vector_arrow(
+                        self.screen, screen_pos, acceleration,
+                        COLORS['FORCE_ARROW'],
+                        f"{math.hypot(*acceleration)/100:.2f} m/s²",
+                        self.font, 100
+                    )
+
+            pygame.display.flip()
+            self.clock.tick(60)
+
+        pygame.quit()
+
 # Simulation Configurations
 BALL_CONFIGS = [
     {   # Large ball with horizontal velocity
@@ -459,7 +634,7 @@ def main():
     # Select simulation scenario:
     # simulation = PendulumSimulation()
     # simulation = FreeBallsSimulation(BALL_CONFIGS, GRAVITY)
-    simulation = CentripetalSimulation()
+    simulation = SlopedSurfaceSimulation()
     simulation.run_main_loop()
 
 if __name__ == "__main__":
