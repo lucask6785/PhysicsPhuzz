@@ -660,7 +660,7 @@ async def main():
     RED = (0, 255, 0)
     while True:
         # Ball settings
-        if not VARIABLES:
+        if not None:
             ball_radius = 20
             ball_x = screen_width // 2
             ball_y = screen_height // 2
