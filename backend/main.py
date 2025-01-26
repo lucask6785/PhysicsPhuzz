@@ -660,7 +660,7 @@ async def main():
     RED = (0, 255, 0)
     while True:
         # Ball settings
-        if not None:
+        if not VARIABLES:
             ball_radius = 20
             ball_x = screen_width // 2
             ball_y = screen_height // 2
@@ -697,11 +697,16 @@ async def main():
                     variable()
                     if VARIABLES:
                         break
-        else:
+        elif VARIABLES["type"] == "pendulum":
             screen.fill(WHITE)
             pygame.display.flip()
             await asyncio.sleep(0)
             break
+
+        elif VARIABLES["type"] == "free_balls":
+            ...
+        else:
+            ...
             '''
             screen.fill(WHITE)
             velocity_display = False
