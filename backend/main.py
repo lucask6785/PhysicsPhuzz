@@ -42,11 +42,11 @@ class PhysicsBall:
         :param screen_height: Window height for coordinate conversion
         """
         self.screen_height = screen_height
-        self.position = (config['x'], config['y'])
+        self.position = (100 if config['x'] == 0 else config['x'], 100 if config['y']== 0 else config['y'])
         self.velocity = (config['vx'], config['vy'])
-        self.acceleration = (config['ax'], config['ay'])
-        self.mass = config['mass']
-        self.radius = config['radius']
+        self.acceleration = (config['ax'], 0)
+        self.mass = 1 if config['mass'] == 0 else config['mass']
+        self.radius = 15 if config['radius'] == 0 else config['radius']
         self.elasticity = config['elasticity']
         self.friction = config['friction']
         self.physics_body = None  # Will hold Pymunk Body reference
@@ -304,7 +304,7 @@ class FreeBallsSimulation(BaseSimulation):
             for ball in self.balls:
                 # Draw ball body
                 body = ball.physics_body
-                ball_pos = (int(body.position.x), SCREEN_HEIGHT - int(body.position.y))
+                ball_pos = (int(0 if math.isnan(body.position.x) else body.position.x), SCREEN_HEIGHT - int(0 if math.isnan(body.position.y) else body.position.y))
                 pygame.draw.circle(self.screen, COLORS['BALL'], ball_pos, ball.radius)
                 
                 # Draw vectors
@@ -627,7 +627,6 @@ class SlopedSurfaceSimulation(BaseSimulation):
         pygame.quit()
 
 # Simulation Configurations
-BALL_CONFIGS = [VARIABLES]
 
 
 # Initialize Pygame
@@ -644,7 +643,8 @@ def variable():
     data =  json.load(ies)
     global VARIABLES
     VARIABLES = data
-    VARIABLES = {'type': 'free-ball', 'variables': {'x': 500,'y': 300,'vx': 0,'vy': 0,'ax': 0,'ay': 0,'mass': 1,'radius': 15,'elasticity': 0.9,'friction': 0.5}, 'id': 0}
+    #VARIABLES = {'type': 'free-ball', 'x': 500,'y': 300,'vx': 0,'vy': 0,'ax': 0,'ay': 0,'mass': 1,'radius': 15,'elasticity': 0.9,'friction': 0.5, 'id': 0}
+    
 
 # Game loop
 async def main():
@@ -686,7 +686,7 @@ async def main():
                 pygame.time.Clock().tick(60)
                 await asyncio.sleep(0)
                 count += 1
-                if count == 300:
+                if count == 60:
                     variable()
                     print(VARIABLES)
                     if VARIABLES:
@@ -699,7 +699,10 @@ async def main():
             break
 
         elif VARIABLES['type'] == "free-ball":
+            BALL_CONFIGS = [VARIABLES]
             simulation = FreeBallsSimulation(BALL_CONFIGS, GRAVITY)
+            simulation.run_main_loop()
+            break
 
         else:
             ...

@@ -49,7 +49,7 @@ def solve_route():
         val = VARIABLES.find("{")
         val2 = VARIABLES.find("}")
         var = ast.literal_eval(VARIABLES[val:val2+1])
-        variable = Variable(x=var['x'], y=var['y'], vx=var['vx'], vy=var['vy'], ax=var['ax'], ay=var['ay'], mass=var['mass'], radius=var['radius'], elasticity=var['elasticity'], friction=var['friction'], type="pendulum")
+        variable = Variable(x=var['x'], y=var['y'], vx=var['vx'], vy=var['vy'], ax=var['ax'], ay=var['ay'], mass=var['mass'], radius=var['radius'], elasticity=var['elasticity'], friction=var['friction'], type=var['type'])
         db.session.add(variable)
         db.session.commit() 
 
