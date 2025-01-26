@@ -179,7 +179,6 @@ def process_physics_response(problem):
 
     print(problem_and_step_by_step)
     print(solution)
-    #print(variables)
 
     return solution, problem_and_step_by_step, variables
 
