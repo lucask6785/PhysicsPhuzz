@@ -91,11 +91,17 @@
                 // First solve - reset ball drop
                     if (block1) World.remove(world, block1);
                     if (block2) World.remove(world, block2);
-                    if (pendulum) World.remove(world, pendulum);
+                    if (pendulum) {
+                        World.remove(world, pendulum.bob);
+                        World.remove(world, pendulum.constraint);
+                    }
                     createBall(json['y']);
                 } else if (json['type'] === 'collision'){                     // Second solve - remove ball and spawn squares
                     if (ball) World.remove(world, ball); // Remove the ball
-                    if (pendulum) World.remove(world, pendulum);
+                    if (pendulum) {
+                        World.remove(world, pendulum.bob);
+                        World.remove(world, pendulum.constraint);
+                    }
                     setupCollision(json);
                 } else if (json['type'] === 'pendulum'){ 
                 // Third solve - remove squares and start pendulum simulation
