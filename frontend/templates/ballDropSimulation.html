@@ -87,7 +87,7 @@
             async function solve(){
                 const response = await fetch("http://localhost:5000/solve")
                 const json = await response.json();
-                if (json['type'] === 'free-ball'){
+                if (json[0]['type'] === 'free-ball'){
                 // First solve - reset ball drop
                     if (block1) World.remove(world, block1);
                     if (block2) World.remove(world, block2);
@@ -95,20 +95,20 @@
                         World.remove(world, pendulum.bob);
                         World.remove(world, pendulum.constraint);
                     }
-                    createBall(json['y']);
-                } else if (json['type'] === 'collision'){                     // Second solve - remove ball and spawn squares
+                    createBall(json[0]['y']);
+                } else if (json[0]['type'] === 'collision'){                     // Second solve - remove ball and spawn squares
                     if (ball) World.remove(world, ball); // Remove the ball
                     if (pendulum) {
                         World.remove(world, pendulum.bob);
                         World.remove(world, pendulum.constraint);
                     }
                     setupCollision(json);
-                } else if (json['type'] === 'pendulum'){ 
+                } else if (json[0]['type'] === 'pendulum'){ 
                 // Third solve - remove squares and start pendulum simulation
                     if (block1) World.remove(world, block1);
                     if (block2) World.remove(world, block2);
                     if (ball) World.remove(world, ball);
-                    setupPendulum(json);
+                    setupPendulum(json[0]);
                 }
             }
             solve();
@@ -127,8 +127,8 @@
             if (block2) World.remove(world, block2);
 
             // Create smaller blocks closer together
-            const blockSize1 = 20*data['mass']; // Smaller block size
-            const blockSize2 = 60; // Smaller block size
+            const blockSize1 = 20*data[0]['mass']; // Smaller block size
+            const blockSize2 = 20*data[1]['mass']; // Smaller block size
             const groundY = window.innerHeight - 40; // Ground level
 
             // Position blocks closer to the center
@@ -153,7 +153,8 @@
             World.add(world, [block1, block2]);
 
             // Apply velocities to make the blocks move toward each other
-            Body.setVelocity(block1, { x: data["vx"], y: 0 }); // Move block1 to the right // Move block2 to the left
+            Body.setVelocity(block1, { x: data[0]["vx"], y: 0 }); // Move block1 to the right // Move block2 to the left
+            Body.setVelocity(block2, { x: data[1]["vx"], y: 0 }); // Move block2 to the left
         }
 
         // Add pendulum
@@ -166,8 +167,8 @@
             }
 
             // Create pendulum
-            const pendulumLength = 100; // Length of the pendulum
-            const bobRadius = 15; // Radius of the pendulum bob
+            const pendulumLength = 200; // Length of the pendulum
+            const bobRadius = 30; // Radius of the pendulum bob
             const anchor = { x: window.innerWidth / 2, y: 100 }; // Anchor point for the pendulum
             const bob = Bodies.circle(anchor.x + pendulumLength, anchor.y, bobRadius, {
                 friction: 0, // No friction
