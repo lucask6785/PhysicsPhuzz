@@ -10,167 +10,74 @@
 </head>
 <body>
     <canvas id="simulation"></canvas>
-
     <script>
-        // Module aliases
+        // Matter.js setup
         const { Engine, Render, Runner, World, Bodies } = Matter;
-
-        // Create engine
+        
+        // Create engine and renderer
         const engine = Engine.create();
         const { world } = engine;
-
-        // Create renderer
-        const canvas = document.getElementById('simulation');
         const render = Render.create({
-            canvas,
-            engine,
+            element: document.body,
+            engine: engine,
+            canvas: document.getElementById('simulation'),
             options: {
                 width: window.innerWidth,
                 height: window.innerHeight,
                 wireframes: false,
-                background: '#f4f4f4'
+                background: '#f0f0f0'
             }
         });
 
-        // Create ground
-        const ground = Bodies.rectangle(window.innerWidth/2, window.innerHeight - 50, window.innerWidth, 100, { 
+        // Create ground and walls
+        const ground = Bodies.rectangle(window.innerWidth/2, window.innerHeight - 20, window.innerWidth, 40, { 
             isStatic: true,
-            render: {
-                fillStyle: '#555'
-            }
+            render: { fillStyle: '#555' }
         });
-
-        // Create ball
-        const ball = Bodies.circle(window.innerWidth/2, 100, 40, {
-            density: 0.04,
-            friction: 0.01,
-            frictionAir: 0.00001,
-            restitution: 0.8,
-            render: {
-                fillStyle: '#ff4757'
-            }
+        const rightWall = Bodies.rectangle(window.innerWidth, window.innerHeight/2, 40, window.innerHeight, { 
+            isStatic: true,
+            render: { fillStyle: '#555' }
         });
 
         // Add bodies to world
-        World.add(world, [ground, ball]);
+        World.add(world, [ground, rightWall]);
 
-        // Run the engine and renderer
+        // Ball variables
+        let ball;
+        let ballRadius = 20;
+        let ballOptions = {
+            density: 0.04,
+            restitution: 0.6,
+            render: {
+                fillStyle: '#ff4757'
+            }
+        };
+
+        // Function to create ball
+        function createBall(height) {
+            if (ball) World.remove(world, ball);
+            ball = Bodies.circle(320, height, ballRadius, ballOptions);
+            World.add(world, ball);
+        }
+
+        // Don't create initial ball - wait for message from parent
+
+        // Start the engine and renderer
         Engine.run(engine);
         Render.run(render);
 
-        // Force visualization arrows
-        const arrows = {
-            velocity: null,
-            acceleration: null
+        // Handle messages from parent window
+        window.addEventListener('message', function(event) {
+            if (event.data.variables) {
+                const { height } = event.data.variables;
+                createBall(height || 100);
+            }
+        });
+
+        // Expose reset function to parent window
+        window.resetSimulation = function() {
+            createBall(100);
         };
-
-        // Create arrow body
-        function createArrow(x, y, length, angle, color) {
-            return Bodies.rectangle(x, y, length, 5, {
-                angle: angle,
-                isStatic: true,
-                render: {
-                    fillStyle: color,
-                    strokeStyle: color,
-                    lineWidth: 2
-                }
-            });
-        }
-
-        // Update arrow position and rotation
-        function updateArrow(arrow, x, y, length, angle) {
-            Matter.Body.setPosition(arrow, { x, y });
-            Matter.Body.setAngle(arrow, angle);
-            Matter.Body.scale(arrow, length / arrow.bounds.max.x, 1);
-        }
-
-        // Reset function with physics parameters
-        function resetSimulation(params = {}) {
-            // Remove all bodies except ground
-            World.clear(world, false);
-            World.add(world, ground);
-
-            // Scale parameters for visualization
-            const scaleFactor = 10;
-            const radius = (params.radius || 0.1) * scaleFactor * 100;
-            const mass = params.mass || 0.1;
-            
-            // Create new ball with physics parameters
-            const newBall = Bodies.circle(
-                window.innerWidth/2, 
-                100, 
-                radius, 
-                {
-                    density: mass / (Math.PI * radius * radius),
-                    friction: params.friction || 0.01,
-                    frictionAir: 0.00001,
-                    restitution: params.elasticity || 0.8,
-                    render: {
-                        fillStyle: '#ff4757'
-                    }
-                }
-            );
-            World.add(world, newBall);
-
-            // Create or update force arrows
-            const ballCenter = newBall.position;
-            const vScale = 0.1;
-            const aScale = 0.05;
-            
-            // Velocity arrow
-            if (!arrows.velocity) {
-                arrows.velocity = createArrow(
-                    ballCenter.x,
-                    ballCenter.y,
-                    Math.hypot(params.vx || 0, params.vy || 0) * vScale,
-                    Math.atan2(params.vy || 0, params.vx || 0),
-                    '#00b894'
-                );
-                World.add(world, arrows.velocity);
-            } else {
-                updateArrow(
-                    arrows.velocity,
-                    ballCenter.x,
-                    ballCenter.y,
-                    Math.hypot(params.vx || 0, params.vy || 0) * vScale,
-                    Math.atan2(params.vy || 0, params.vx || 0)
-                );
-            }
-
-            // Acceleration arrow
-            if (!arrows.acceleration) {
-                arrows.acceleration = createArrow(
-                    ballCenter.x,
-                    ballCenter.y,
-                    Math.hypot(params.ax || 0, params.ay || 0) * aScale,
-                    Math.atan2(params.ay || 0, params.ax || 0),
-                    '#e17055'
-                );
-                World.add(world, arrows.acceleration);
-            } else {
-                updateArrow(
-                    arrows.acceleration,
-                    ballCenter.x,
-                    ballCenter.y,
-                    Math.hypot(params.ax || 0, params.ay || 0) * aScale,
-                    Math.atan2(params.ay || 0, params.ax || 0)
-                );
-            }
-        }
-
-        // Expose reset function to global scope
-        window.resetSimulation = resetSimulation;
-
-        // Example usage:
-        // window.resetSimulation({
-        //     x: 0, y: 50, 
-        //     vx: 0, vy: 0,
-        //     ax: 0, ay: -9.8,
-        //     elasticity: 0.8,
-        //     friction: 0.01,
-        //     mass: 0.1,
-        //     radius: 0.1
-        // });
     </script>
 </body>
 </html>
