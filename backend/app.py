@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, jsonify
 from Chat_API import *  # Assuming the necessary functions are in this module
 
 app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
-global VARIABLES
 VARIABLES = None
 
 # Route to serve the HTML file
@@ -23,7 +22,7 @@ def solve_route():
     print(solution)
     global VARIABLES
     VARIABLES = variables
-
+    print(VARIABLES)
     # Return the solution and steps as JSON
     return jsonify({
         'solution': solution,

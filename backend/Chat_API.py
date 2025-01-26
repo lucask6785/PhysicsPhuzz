@@ -49,8 +49,8 @@ def replace_with_subscripts(text):
 
 
 
-def process_physics_response():
-    global user_query
+def process_physics_response(problem):
+    #global user_query
     client = OpenAI(api_key="sk-148cbd347b074031b384462738683ee8", base_url="https://api.deepseek.com")
 
     response = client.chat.completions.create(
@@ -61,7 +61,7 @@ def process_physics_response():
             {"role": "system", "content": "I need you to make another section just for variables and what they are equal too, so all the variables at the end the solution. Any variable to do with the equation. Label the first word when you create this list, 'Variables:'"},
             {"role": "system", "content": "Always state the problem with the first words being 'Problem Statement:' , exactly like this, and the solution as 'Solution:' this will be the case every single time."},
             {"role": "system", "content": "Give everything separately, so the problem statement, you should restate the problem in better terms, outlining to the user what the question is and what it is asking. Next you will provide step by step explanation of how to get from the problem the user gives to the solution in a bullet pointed format with indents and tabs to the next line. This problem and step by step solution will be paired together. Next you give the solution, this solution will be by itself and start with the word solution and then indent again, this will be separately looked at not with the problem and step by step solution."},
-            {"role": "user", "content": user_query}
+            {"role": "user", "content": problem}
         ],
         stream=False
     )
@@ -179,7 +179,7 @@ def process_physics_response():
 
     print(problem_and_step_by_step)
     print(solution)
-    print(variables)
+    #print(variables)
 
     return solution, problem_and_step_by_step, variables
 
