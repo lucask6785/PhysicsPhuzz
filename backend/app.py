@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from Chat_API import *  # Assuming the necessary functions are in this module
-
+import ast
 app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
 VARIABLES = None
 
@@ -19,10 +19,14 @@ def solve_route():
 
     # Solve the problem and get the solution and steps
     solution, steps, variables = process_physics_response(problem)
-    print(solution)
+    #print(solution)
     global VARIABLES
     VARIABLES = variables
-    print(VARIABLES)
+    
+    val = VARIABLES.find("{")
+    val2 = VARIABLES.find("}")
+    VARIABLES = ast.literal_eval(VARIABLES[val:val2+1])
+
     # Return the solution and steps as JSON
     return jsonify({
         'solution': solution,
