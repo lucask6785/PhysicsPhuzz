@@ -122,7 +122,7 @@ def solve(problem):
     print(solution)
     print(variables)
 
-    return solution, problem_and_step_by_step
+    return solution, problem_and_step_by_step, variables
 
 def show_steps():
     # Your code to get the solution steps based on the input
