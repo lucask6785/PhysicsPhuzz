@@ -271,5 +271,75 @@
             <button onclick="insertMath()">Insert Math</button>
         </div>
     </div>
+
+    <script>
+        // Function to refresh the simulation with new variables
+        function refreshSimulation(variables) {
+            console.log('Sending variables to iframe:', variables);
+            const iframe = document.getElementById('physics-iframe');
+            iframe.contentWindow.postMessage({ variables: variables }, '*');
+        }
+    
+        // Function to solve the problem and update the simulation
+        let solveClickCount = 0;
+
+function solveProblem() {
+    const problem = document.getElementById("problem").value;
+    const solveButton = document.getElementById("solve-button");
+    const stepsButton = document.getElementById("show-steps-button");
+
+    if (!problem.trim()) {
+        alert("Error: Please enter a problem!");
+        return;
+    }
+
+    solveButton.innerText = "Solving...";
+    solveButton.disabled = true;
+
+    fetch('/solve', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ problem: problem })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Response from server:', data);
+        document.getElementById("solution").value = data.solution;
+
+        // Update the steps section
+        const stepsSection = document.getElementById("steps-section");
+        if (data.steps) {
+            stepsSection.innerHTML = `<p>${data.steps}</p>`;
+            stepsButton.style.display = "inline-block"; // Show the steps button
+            stepsButton.innerText = "Show Steps ➡️"; // Default to "Show Steps"
+        }
+
+        // Increment the solve click count
+        solveClickCount++;
+
+        // Send a message to the iframe based on the click count
+        const iframe = document.getElementById('physics-iframe');
+        if (solveClickCount === 1) {
+            // First click - reset ball drop
+            iframe.contentWindow.postMessage({ action: 'solve' }, '*');
+        } else if (solveClickCount === 2) {
+            // Second click - show collision
+            iframe.contentWindow.postMessage({ action: 'solve' }, '*');
+            solveClickCount = 0; // Reset the counter
+        }
+
+        solveButton.innerText = "Solve! ⬇️";
+        solveButton.disabled = false;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert("An error occurred while solving the problem. Please try again.");
+        solveButton.innerText = "Solve! ⬇️";
+        solveButton.disabled = false;
+    });
+}
+    </script>
 </body>
 </html>
