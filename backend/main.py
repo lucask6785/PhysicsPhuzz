@@ -658,7 +658,7 @@ async def main():
 
     while True:
         # Ball settings
-        if not None:
+        if False:
             ball_radius = 20
             ball_x = screen_width // 2
             ball_y = screen_height // 2
@@ -690,6 +690,10 @@ async def main():
                 # Control the frame rate
                 pygame.time.Clock().tick(60)
                 await asyncio.sleep(0)
+        else:
+            simulation = FreeBallsSimulation(BALL_CONFIGS, GRAVITY)
+            simulation.run_main_loop()
+
     '''
         else:
             screen.fill(WHITE)
