@@ -34,10 +34,11 @@
                     const stepsSection = document.getElementById("steps-section");
                     if (data.steps) {
                         stepsSection.innerHTML = `<p>${data.steps}</p>`;
-                        stepsSection.style.display = "flex"; // Ensure steps are visible
+                        stepsSection.style.display = "none"; // Hide steps initially
+                        stepsSection.style.visibility = "hidden"; // Ensure steps are hidden
                         stepsButton.style.display = "inline-block"; // Ensure the button is visible
                         stepsButton.style.visibility = "visible";
-                        stepsButton.innerText = "Hide Steps ⬅️"; // Default to "Hide Steps"
+                        stepsButton.innerText = "Show Steps ➡️"; // Default to "Show Steps"
                     }
         
                     solveButton.innerText = "Solve! ⬇️";
@@ -70,8 +71,6 @@
                 }
             }
         </script>
-        
-        
     </head>
 <body>
     <div class="container">
@@ -90,12 +89,10 @@
             <button id="show-steps-button" style="visibility:hidden;" onclick="toggleSteps()">Show Steps ➡️</button>
 
             <!-- Steps Section -->
-            <div id="steps-section" class="steps-section" style="display: none;">
+            <div id="steps-section" class="steps-section" style="display: none; visibility: hidden;">
                 <!-- Steps will be dynamically populated here -->
             </div>
         </div>
-        
-        
         
         <div class="right-panel">
             <div class="visualization">
