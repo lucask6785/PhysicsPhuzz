@@ -627,15 +627,7 @@ class SlopedSurfaceSimulation(BaseSimulation):
         pygame.quit()
 
 # Simulation Configurations
-BALL_CONFIGS = [
-    {   # Large ball with horizontal velocity
-        'x': 400, 'y': 100,
-        'vx': 500, 'vy': 0,
-        'ax': 0, 'ay': 0,
-        'elasticity': 0.8, 'friction': 1,
-        'mass': 2, 'radius': 15
-    }
-]
+BALL_CONFIGS = [VARIABLES]
 
 
 # Initialize Pygame
@@ -652,6 +644,7 @@ def variable():
     data =  json.load(ies)
     global VARIABLES
     VARIABLES = data
+    VARIABLES = {'type': 'free_balls', 'variables': {'x': 500,'y': 300,'vx': 0,'vy': 0,'ax': 0,'ay': 0,'mass': 1,'radius': 15,'elasticity': 0.9,'friction': 0.5}, 'id': 0}
 
 # Game loop
 async def main():
@@ -660,7 +653,7 @@ async def main():
     RED = (0, 255, 0)
     while True:
         # Ball settings
-        if not VARIABLES:
+        if VARIABLES == None:
             ball_radius = 20
             ball_x = screen_width // 2
             ball_y = screen_height // 2
@@ -698,14 +691,16 @@ async def main():
                     print(VARIABLES)
                     if VARIABLES:
                         break
-        elif VARIABLES["type"] == "pendulum":
-            screen.fill(WHITE)
-            pygame.display.flip()
+
+        elif VARIABLES['type'] == "pendulum":
+            simulation = PendulumSimulation()
+            simulation.run_main_loop()
             await asyncio.sleep(0)
             break
 
-        elif VARIABLES["type"] == "free_balls":
-            ...
+        elif VARIABLES['type'] == "free_balls":
+            simulation = FreeBallsSimulation(BALL_CONFIGS, GRAVITY)
+
         else:
             ...
             '''
