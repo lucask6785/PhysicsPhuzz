@@ -2,7 +2,7 @@ import re
 from openai import OpenAI
 
 # Default value for user query
-user_query = "A ball is kicked with an initial velocity of vnull = 30 m/s at an angle of theta = 40 degrees above the horizontal from ground level. There is a constant horizontal wind force of Fwind = 5.0 N acting opposite to the direction of motion. The ball has a mass of m = 2.0kg. 1. calculate the range of the projectile, accounting for the wind force. 2. find the time the ball is in the air"
+user_query = "A circular loop of radius R = 0.1m and resistance Rloop = 2.o ohm is placed in a time-varying magnetic field B(t) = 0.01t^2 T where t is in seconds. 1. Deerive an expression for the induced EMF in the loop. 2. Find the current indued in the loop at t= 5s"
 
 # Map to convert ^# to its subscript equivalent
 subscript_map = {
@@ -143,7 +143,10 @@ def process_physics_response():
                    .replace("v_y", "vy")
                    .replace("v_x", "vx")
                    .replace("t_{total}", "Ttotal")
-                   .replace("}}", "} / "))
+                   .replace("}}", "} / ")
+                   .replace("mu", "μ")
+                   .replace("Omega", "Ω")
+                   .replace("Phi", "Φ"))
         
         message = re.sub(r'^\s*×|\s*×\s*$', '', message, flags=re.MULTILINE)
         # Standardize physics variables
