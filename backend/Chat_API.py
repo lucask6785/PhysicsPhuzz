@@ -2,7 +2,7 @@ import re
 from openai import OpenAI
 
 # Default value for user query
-user_query = "The kinetic energy is given by K = 1/2 mv^5 . If the mass is tripled and the velocity is doubled, what is the new kinetic energy?" 
+user_query = "A ball is kicked with an initial velocity of vnull = 30 m/s at an angle of theta = 40 degrees above the horizontal from ground level. There is a constant horizontal wind force of Fwind = 5.0 N acting opposite to the direction of motion. The ball has a mass of m = 2.0kg. 1. calculate the range of the projectile, accounting for the wind force. 2. find the time the ball is in the air"
 
 # Map to convert ^# to its subscript equivalent
 subscript_map = {
@@ -42,7 +42,7 @@ def standardize_physics_variables(text):
 def replace_with_subscripts(text):
     # Replace occurrences of ^ followed by numbers with the subscript equivalent
     def subscript_replacement(match):
-        number = match.group(1)  # Get the number after ^
+        number = match.group(1)  # Get the number afwith ter ^
         return subscript_map.get(number, match.group(0))  # Return the corresponding subscript or original if not found
 
     return re.sub(r'\^(-?\d+)', subscript_replacement, text)
@@ -133,7 +133,17 @@ def process_physics_response():
                    .replace("  ", " ")
                    .replace("pi","π")
                    .replace(".(", ".")
-                   .replace(").","."))
+                   .replace(").",".")
+                   .replace(". ×", ". ")
+                   .replace("^circ", "°")
+                   .replace("theta", "θ")
+                   .replace("v_{y}", "Vy")
+                   .replace("v_{0y}", "v₀y")
+                   .replace("v_{0x}", "v₀x")
+                   .replace("v_y", "vy")
+                   .replace("v_x", "vx")
+                   .replace("t_{total}", "Ttotal")
+                   .replace("}}", "} / "))
         
         message = re.sub(r'^\s*×|\s*×\s*$', '', message, flags=re.MULTILINE)
         # Standardize physics variables
