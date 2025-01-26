@@ -179,6 +179,7 @@ def free_balls(num_balls, args_list, gravity):
 def centripetal_simulation():
     velocity_display = False
     acceleration_display = False
+    centripetal = True
 
     # Initialize Pygame and fonts
     pygame.init()
@@ -195,11 +196,13 @@ def centripetal_simulation():
     space = pymunk.Space()
     space.gravity = (0, 0)
     
+    create_walls(space, screen_width, screen_height)
+
     # Create rotating ball
     center = (screen_width//2, screen_height//2)
     radius = 200
     mass = 2
-    tangential_speed = 300  # pixels/second
+    tangential_speed = 100  # pixels/second
     
     args = {
         'x': center[0] + radius,
@@ -233,6 +236,11 @@ def centripetal_simulation():
                         velocity_display = False
                     else:
                         velocity_display = True
+                elif event.key == pygame.K_c:
+                    if centripetal == True:
+                        centripetal = False
+                    else:
+                        centripetal = True
         
         # Calculate and apply centripetal force
         body = ball.object
@@ -251,7 +259,8 @@ def centripetal_simulation():
             fy = force_mag * (dy / r)
             
             # Apply force in Pymunk coordinates (flip y)
-            body.apply_force_at_world_point((fx, -fy), body.position)
+            if centripetal:
+                body.apply_force_at_world_point((fx, -fy), body.position)
         
         # Physics step
         space.step(1/60.0)

@@ -15,7 +15,7 @@ pygame.display.set_caption("Moving Ball")
 async def main():
     # Define colors
     WHITE = (255, 255, 255)
-    RED = (255, 0, 0)
+    RED = (0, 255, 0)
 
     # Ball settings
     ball_radius = 20
