@@ -3,6 +3,7 @@ from Chat_API import *  # Assuming the necessary functions are in this module
 import ast
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+import requests
 
 app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///variables.db'
@@ -40,6 +41,20 @@ def solve_route():
         data = request.get_json()
         problem = data.get('problem', '')
         print('solve button clicked')
+
+        # If no problem is provided, try to extract text from an image
+        if not problem:
+            # Send image as a POST request to the upload-image route
+            image_file_path = "./assets/physicsprob.png"  # Path to your image file
+            with open(image_file_path, 'rb') as f:
+                files = {'image': f}
+                response = requests.post('http://127.0.0.1:5000/upload-image', files=files)
+            
+            if response.status_code == 200 and response.json().get('success'):
+                problem = response.json().get('text', '')
+                print("Extracted Text from Image:", problem)
+            else:
+                return jsonify({'success': False, 'message': 'Failed to extract text from image'})
 
         # Solve the problem and get the solution and steps
         solution, steps, variables = process_physics_response(problem)
