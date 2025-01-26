@@ -10,6 +10,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <!-- Include MathQuill JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathquill/0.10.1/mathquill.min.js"></script>
+    <!-- Include Tesseract.js -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.4/dist/tesseract.min.js"></script>
     <script>
         let mathField; // Global variable to store the MathQuill instance
 
@@ -28,14 +30,14 @@
                         // Update the textarea with the LaTeX content
                         const latex = mathField.latex();
                         document.getElementById('problem').value = latex;
-            }
-        }
-    });
+                    }
+                }
+            });
 
-    // Preserve spaces by replacing them with a non-breaking space ( ) in LaTeX
-    const preservedText = problemText.replace(/ /g, '\\ '); // Replace spaces with LaTeX spaces
-    mathField.latex(preservedText); // Set the text in the MathQuill editor
-}
+            // Preserve spaces by replacing them with a non-breaking space ( ) in LaTeX
+            const preservedText = problemText.replace(/ /g, '\\ '); // Replace spaces with LaTeX spaces
+            mathField.latex(preservedText); // Set the text in the MathQuill editor
+        }
 
         function closeMathEditor() {
             // Hide the modal
@@ -59,6 +61,45 @@
             // Close the modal
             closeMathEditor();
         }
+
+        // Handle photo upload
+        document.getElementById('photo-upload').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                console.log("Image source:", e.target.result); // Debugging
+                const photoPreview = document.getElementById('photo-preview');
+                const uploadedPhoto = document.getElementById('uploaded-photo');
+                uploadedPhoto.src = e.target.result;
+                photoPreview.style.display = 'block';
+
+                // Extract text from the photo using Tesseract.js
+                extractTextFromImage(e.target.result);
+            };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Function to extract text from an image
+        function extractTextFromImage(imageSrc) {
+    console.log("Starting text extraction..."); // Debugging
+    Tesseract.recognize(
+        imageSrc,
+        'eng', // Language (English)
+        {
+            logger: (info) => console.log(info), // Log progress
+        }
+    ).then(({ data: { text } }) => {
+        console.log("Extracted text:", text); // Debugging
+        // Insert the extracted text into the problem text box
+        const problemTextarea = document.getElementById('problem');
+        problemTextarea.value = text.trim(); // Trim whitespace and insert text
+    }).catch((error) => {
+        console.error('Error extracting text:', error); // Debugging
+        alert('Failed to extract text from the photo. Please try again.');
+    });
+}
 
         // Your existing JavaScript code...
         function solveProblem() {
@@ -135,6 +176,15 @@
                 <label for="problem">Enter your physics problem to see a solution and visualization!</label>
                 <textarea id="problem" placeholder="Type your problem here..."></textarea>
                 <button id="math-editor-button" onclick="openMathEditor()">Math Editor</button>
+                
+                <!-- Add file input for photo upload -->
+                <input type="file" id="photo-upload" accept="image/*" style="display: none;">
+                <button id="upload-button" onclick="document.getElementById('photo-upload').click()">Upload Photo</button>
+                
+                <!-- Placeholder to display uploaded photo -->
+                <div id="photo-preview" style="margin-top: 10px; display: none;">
+                    <img id="uploaded-photo" src="#" alt="Uploaded Photo" style="max-width: 100%; height: auto;">
+                </div>
             </div>
             <button id="solve-button" onclick="solveProblem()">Solve! ⬇️</button>
             <div class="solution-section">

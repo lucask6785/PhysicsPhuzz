@@ -246,3 +246,26 @@ button:hover {
         width: 60px; /* Smaller image size */
     }
 }
+
+/* Styles for photo upload */
+#upload-button {
+    background-color: #4CAF50; /* Green background */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+#upload-button:hover {
+    background-color: #45a049; /* Darker green on hover */
+}
+
+#photo-preview img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin-top: 10px;
+}
