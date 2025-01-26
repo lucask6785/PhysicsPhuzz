@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, jsonify
 from scripts import *  # Assuming the necessary functions are in this module
 
 app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
+global VARIABLES
+VARIABLES = None
 
 # Route to serve the HTML file
 @app.route('/')
@@ -17,8 +19,10 @@ def solve_route():
     print('solve button clicked')
 
     # Solve the problem and get the solution and steps
-    solution, steps = solve(problem)
+    solution, steps, variables = solve(problem)
     print(solution)
+    global VARIABLES
+    VARIABLES = variables
 
     # Return the solution and steps as JSON
     return jsonify({
