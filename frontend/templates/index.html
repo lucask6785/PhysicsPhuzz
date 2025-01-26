@@ -1,77 +1,131 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Physics Problem Solver</title>
-        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-        <script>
-            function solveProblem() {
-                const problem = document.getElementById("problem").value;
-                const solveButton = document.getElementById("solve-button");
-                const stepsButton = document.getElementById("show-steps-button");
-        
-                if (!problem.trim()) {
-                    alert("Error: Please enter a problem!");
-                    return;
-                }
-        
-                solveButton.innerText = "Solving...";
-                solveButton.disabled = true;
-        
-                fetch('/solve', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ problem: problem })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data.message);
-                    document.getElementById("solution").value = data.solution;
-        
-                    const stepsSection = document.getElementById("steps-section");
-                    if (data.steps) {
-                        stepsSection.innerHTML = `<p>${data.steps}</p>`;
-                        stepsSection.style.display = "none"; // Hide steps initially
-                        stepsSection.style.visibility = "hidden"; // Ensure steps are hidden
-                        stepsButton.style.display = "inline-block"; // Ensure the button is visible
-                        stepsButton.style.visibility = "visible";
-                        stepsButton.innerText = "Show Steps ➡️"; // Default to "Show Steps"
-                    }
-        
-                    solveButton.innerText = "Solve! ⬇️";
-                    solveButton.disabled = false;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert("An error occurred while solving the problem. Please try again.");
-                    solveButton.innerText = "Solve! ⬇️";
-                    solveButton.disabled = false;
-                });
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics Problem Solver</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <!-- Include MathQuill CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mathquill/0.10.1/mathquill.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- Include MathQuill JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathquill/0.10.1/mathquill.min.js"></script>
+    <script>
+        let mathField; // Global variable to store the MathQuill instance
+
+        function openMathEditor() {
+            // Show the modal
+            document.getElementById('math-editor-modal').style.display = 'block';
+
+            // Get the text from the textarea
+            const problemText = document.getElementById('problem').value;
+
+            // Initialize MathQuill inside the modal
+            const mathFieldSpan = document.getElementById('math-field');
+            mathField = MathQuill.getInterface(2).MathField(mathFieldSpan, {
+                handlers: {
+                    edit: function() {
+                        // Update the textarea with the LaTeX content
+                        const latex = mathField.latex();
+                        document.getElementById('problem').value = latex;
             }
-        
-            function toggleSteps() {
+        }
+    });
+
+    // Preserve spaces by replacing them with a non-breaking space ( ) in LaTeX
+    const preservedText = problemText.replace(/ /g, '\\ '); // Replace spaces with LaTeX spaces
+    mathField.latex(preservedText); // Set the text in the MathQuill editor
+}
+
+        function closeMathEditor() {
+            // Hide the modal
+            document.getElementById('math-editor-modal').style.display = 'none';
+        }
+
+        function insertSymbol(symbol) {
+            if (mathField) {
+                mathField.write(symbol); // Insert the symbol into the math editor
+            }
+        }
+
+        function insertMath() {
+            // Get the LaTeX content from the math field
+            const latex = mathField.latex();
+
+            // Insert the LaTeX content into the textarea
+            const problemTextarea = document.getElementById('problem');
+            problemTextarea.value += latex;
+
+            // Close the modal
+            closeMathEditor();
+        }
+
+        // Your existing JavaScript code...
+        function solveProblem() {
+            const problem = document.getElementById("problem").value;
+            const solveButton = document.getElementById("solve-button");
+            const stepsButton = document.getElementById("show-steps-button");
+
+            if (!problem.trim()) {
+                alert("Error: Please enter a problem!");
+                return;
+            }
+
+            solveButton.innerText = "Solving...";
+            solveButton.disabled = true;
+
+            fetch('/solve', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ problem: problem })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.message);
+                document.getElementById("solution").value = data.solution;
+
                 const stepsSection = document.getElementById("steps-section");
-                const stepsButton = document.getElementById("show-steps-button");
-        
-                if (stepsSection.style.visibility === "visible") {
-                    // Hide the steps section
-                    stepsSection.style.visibility = "hidden";
-                    stepsSection.style.display = "none";
-                    stepsButton.innerText = "Show Steps ➡️"; // Change button text
-                } else {
-                    // Show the steps section
-                    stepsSection.style.display = "flex";
-                    setTimeout(() => {
-                        stepsSection.style.visibility = "visible";
-                    }, 10);
-                    stepsButton.innerText = "Hide Steps ⬅️"; // Change button text
+                if (data.steps) {
+                    stepsSection.innerHTML = `<p>${data.steps}</p>`;
+                    stepsSection.style.display = "flex"; // Ensure steps are visible
+                    stepsButton.style.display = "inline-block"; // Ensure the button is visible
+                    stepsButton.style.visibility = "visible";
+                    stepsButton.innerText = "Hide Steps ⬅️"; // Default to "Hide Steps"
                 }
+
+                solveButton.innerText = "Solve! ⬇️";
+                solveButton.disabled = false;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("An error occurred while solving the problem. Please try again.");
+                solveButton.innerText = "Solve! ⬇️";
+                solveButton.disabled = false;
+            });
+        }
+
+        function toggleSteps() {
+            const stepsSection = document.getElementById("steps-section");
+            const stepsButton = document.getElementById("show-steps-button");
+
+            if (stepsSection.style.visibility === "visible") {
+                // Hide the steps section
+                stepsSection.style.visibility = "hidden";
+                stepsSection.style.display = "none";
+                stepsButton.innerText = "Show Steps ➡️"; // Change button text
+            } else {
+                // Show the steps section
+                stepsSection.style.display = "flex";
+                setTimeout(() => {
+                    stepsSection.style.visibility = "visible";
+                }, 10);
+                stepsButton.innerText = "Hide Steps ⬅️"; // Change button text
             }
-        </script>
-    </head>
+        }
+    </script>
+</head>
 <body>
     <div class="container">
         <div class="left-panel">
@@ -80,6 +134,7 @@
             <div class="input-section">
                 <label for="problem">Enter your physics problem to see a solution and visualization!</label>
                 <textarea id="problem" placeholder="Type your problem here..."></textarea>
+                <button id="math-editor-button" onclick="openMathEditor()">Math Editor</button>
             </div>
             <button id="solve-button" onclick="solveProblem()">Solve! ⬇️</button>
             <div class="solution-section">
@@ -87,20 +142,16 @@
                 <textarea id="solution" placeholder="Solution will appear here..." readonly></textarea>
             </div>
             <button id="show-steps-button" style="visibility:hidden;" onclick="toggleSteps()">Show Steps ➡️</button>
-
-            <!-- Steps Section -->
-            <div id="steps-section" class="steps-section" style="display: none; visibility: hidden;">
+            <div id="steps-section" class="steps-section" style="display: none;">
                 <!-- Steps will be dynamically populated here -->
             </div>
         </div>
-        
         <div class="right-panel">
             <div class="visualization">
                 <iframe src="{{ url_for('static', filename='build/web/index.html') }}" width="640" height="480"></iframe>
             </div>
         </div>
     </div>
-
     <div class="about-us">
         <h2>About Us</h2>
         <p>
@@ -112,6 +163,56 @@
         <div class="footer">
             Made for SwampHacks X 🐊 | 
             <a href="https://github.com/lucask6785/SwampHacksX" target="_blank">GitHub Repository</a>
+        </div>
+    </div>
+
+    <!-- Math Editor Modal -->
+    <div id="math-editor-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeMathEditor()">&times;</span>
+            <h2>Math Editor</h2>
+            <div class="symbol-toolbar">
+                <!-- Greek Letters -->
+                <button onclick="insertSymbol('\\alpha')">α</button>
+                <button onclick="insertSymbol('\\beta')">β</button>
+                <button onclick="insertSymbol('\\theta')">θ</button>
+                <button onclick="insertSymbol('\\lambda')">λ</button>
+                <button onclick="insertSymbol('\\pi')">π</button>
+                <button onclick="insertSymbol('\\phi')">φ</button>
+                <button onclick="insertSymbol('\\Omega')">Ω</button>
+            
+                <!-- Basic Math -->
+                <button onclick="insertSymbol('+')">+</button>
+                <button onclick="insertSymbol('-')">−</button>
+                <button onclick="insertSymbol('\\times')">×</button>
+                <button onclick="insertSymbol('\\div')">÷</button>
+                <button onclick="insertSymbol('=')">=</button>
+                <button onclick="insertSymbol('\\neq')">≠</button>
+            
+                <!-- Fractions and Roots -->
+                <button onclick="insertSymbol('\\frac{a}{b}')">a/b</button>
+                <button onclick="insertSymbol('\\sqrt{x}')">√x</button>
+            
+                <!-- Calculus -->
+                <button onclick="insertSymbol('\\int')">∫</button>
+                <button onclick="insertSymbol('\\sum')">∑</button>
+                <button onclick="insertSymbol('\\partial')">∂</button>
+            
+                <!-- Trigonometry -->
+                <button onclick="insertSymbol('\\sin(x)')">sin(x)</button>
+                <button onclick="insertSymbol('\\cos(x)')">cos(x)</button>
+                <button onclick="insertSymbol('\\tan(x)')">tan(x)</button>
+            
+                <!-- Physics-Specific -->
+                <button onclick="insertSymbol('\\hbar')">ℏ</button>
+                <button onclick="insertSymbol('c')">c</button>
+                <button onclick="insertSymbol('\\epsilon_0')">ε₀</button>
+                <button onclick="insertSymbol('\\mu_0')">μ₀</button>
+                <button onclick="insertSymbol('\\phi')">Φ</button>
+                <button onclick="insertSymbol('^\\circ')">°</button>
+            </div>
+            <div id="math-field" class="math-field"></div>
+            <button onclick="insertMath()">Insert Math</button>
         </div>
     </div>
 </body>
