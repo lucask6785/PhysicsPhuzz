@@ -1,11 +1,13 @@
 import pygame
 import sys
 import asyncio
-from app import VARIABLES
-import math
-import pymunk
-import pymunk.pygame_util
-from ball import Ball, create_walls, draw_arrow, draw_force_arrow
+#import math
+#import pymunk
+#import pymunk.pygame_util
+#from ball import Ball, create_walls, draw_arrow, draw_force_arrow
+import urllib.request
+import json
+
 
 # Initialize Pygame
 pygame.init()
@@ -15,6 +17,12 @@ screen_width, screen_height = 640, 480
 screen = pygame.display.set_mode((screen_width, screen_height), pygame.RESIZABLE)
 pygame.display.set_caption("Moving Ball")
 
+def variable():
+    ies =   urllib.request.urlopen('http://localhost:5000/solve')
+    data =  json.load(ies)
+    #VARIABLES = data
+    print(data)
+
 # Game loop
 async def main():
     # Define colors
@@ -23,7 +31,7 @@ async def main():
 
     while True:
         # Ball settings
-        if not VARIABLES:
+        if not None:
             ball_radius = 20
             ball_x = screen_width // 2
             ball_y = screen_height // 2
@@ -38,12 +46,6 @@ async def main():
                     if event.type == pygame.QUIT:
                         pygame.quit()
                         sys.exit()
-                    elif event.type == pygame.VIDEORESIZE:
-                        # Update screen dimensions when the window is resized
-                        screen_width, screen_height = event.w, event.h
-                        screen = pygame.display.set_mode((screen_width, screen_height), pygame.RESIZABLE)
-                        ball_x = screen_width // 2  # Re-center the ball
-                        ball_y = screen_height // 2
 
                 # Update ball position
                 ball_x += ball_speed * ball_direction
@@ -61,9 +63,7 @@ async def main():
                 # Control the frame rate
                 pygame.time.Clock().tick(60)
                 await asyncio.sleep(0)
-                if VARIABLES:
-                    break
-
+    '''
         else:
             screen.fill(WHITE)
             velocity_display = False
@@ -165,5 +165,5 @@ async def main():
 
                 pygame.display.flip()
                 clock.tick(60)
-
+    '''
 asyncio.run(main())
