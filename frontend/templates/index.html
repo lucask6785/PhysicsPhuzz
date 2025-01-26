@@ -10,9 +10,163 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <!-- Include MathQuill JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathquill/0.10.1/mathquill.min.js"></script>
-    <!-- Include Tesseract.js for text extraction -->
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.4/dist/tesseract.min.js"></script>
-    <!-- Include the external JavaScript file -->
+    <script src="{{ url_for('static', filename='visualization.js') }}"></script>
+    <!-- Add p5.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+
+<!-- Add a canvas for visualization -->
+<div class="right-panel">
+    <div class="visualization" id="visualization-container">
+        <div id="visualization-canvas"></div>
+    </div>
+</div>
+
+    <script>
+        let mathField; // Global variable to store the MathQuill instance
+
+        function openMathEditor() {
+            // Show the modal
+            document.getElementById('math-editor-modal').style.display = 'block';
+
+            // Get the text from the textarea
+            const problemText = document.getElementById('problem').value;
+
+            // Initialize MathQuill inside the modal
+            const mathFieldSpan = document.getElementById('math-field');
+            mathField = MathQuill.getInterface(2).MathField(mathFieldSpan, {
+                handlers: {
+                    edit: function() {
+                        // Update the textarea with the LaTeX content
+                        const latex = mathField.latex();
+                        document.getElementById('problem').value = latex;
+            }
+        }
+    });
+
+    // Preserve spaces by replacing them with a non-breaking space ( ) in LaTeX
+    const preservedText = problemText.replace(/ /g, '\\ '); // Replace spaces with LaTeX spaces
+    mathField.latex(preservedText); // Set the text in the MathQuill editor
+}
+
+        function closeMathEditor() {
+            // Hide the modal
+            document.getElementById('math-editor-modal').style.display = 'none';
+        }
+
+        function insertSymbol(symbol) {
+            if (mathField) {
+                mathField.write(symbol); // Insert the symbol into the math editor
+            }
+        }
+
+        function insertMath() {
+            // Get the LaTeX content from the math field
+            const latex = mathField.latex();
+
+            // Insert the LaTeX content into the textarea
+            const problemTextarea = document.getElementById('problem');
+            problemTextarea.value += latex;
+
+            // Close the modal
+            closeMathEditor();
+        }
+        // Handle photo upload
+        document.getElementById('photo-upload').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                console.log("Image source:", e.target.result); // Debugging
+                const photoPreview = document.getElementById('photo-preview');
+                const uploadedPhoto = document.getElementById('uploaded-photo');
+                uploadedPhoto.src = e.target.result;
+                photoPreview.style.display = 'block';
+
+                // Extract text from the photo using Tesseract.js
+                extractTextFromImage(e.target.result);
+            };
+                reader.readAsDataURL(file);
+            }
+        });
+
+          // Function to extract text from an image
+          function extractTextFromImage(imageSrc) {
+    console.log("Starting text extraction..."); // Debugging
+    Tesseract.recognize(
+        imageSrc,
+        'eng', // Language (English)
+        {
+            logger: (info) => console.log(info), // Log progress
+        }
+    ).then(({ data: { text } }) => {
+        console.log("Extracted text:", text); // Debugging
+        // Insert the extracted text into the problem text box
+        const problemTextarea = document.getElementById('problem');
+        problemTextarea.value = text.trim(); // Trim whitespace and insert text
+    }).catch((error) => {
+        console.error('Error extracting text:', error); // Debugging
+        alert('Failed to extract text from the photo. Please try again.');
+    });
+}
+
+
+        // Your existing JavaScript code...
+        function solveProblem() {
+    const problem = document.getElementById("problem").value;
+    const solveButton = document.getElementById("solve-button");
+
+    if (!problem.trim()) {
+        alert("Error: Please enter a problem!");
+        return;
+    }
+
+    solveButton.innerText = "Solving...";
+    solveButton.disabled = true;
+
+    fetch('/solve', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ problem: problem })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data.message);
+        document.getElementById("solution").value = data.solution;
+
+        // Fetch the latest variables for visualization
+        fetchAndVisualize();
+
+        solveButton.innerText = "Solve! ⬇️";
+        solveButton.disabled = false;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert("An error occurred while solving the problem. Please try again.");
+        solveButton.innerText = "Solve! ⬇️";
+        solveButton.disabled = false;
+    });
+}
+        function toggleSteps() {
+            const stepsSection = document.getElementById("steps-section");
+            const stepsButton = document.getElementById("show-steps-button");
+
+            if (stepsSection.style.visibility === "visible") {
+                // Hide the steps section
+                stepsSection.style.visibility = "hidden";
+                stepsSection.style.display = "none";
+                stepsButton.innerText = "Show Steps ➡️"; // Change button text
+            } else {
+                // Show the steps section
+                stepsSection.style.display = "flex";
+                setTimeout(() => {
+                    stepsSection.style.visibility = "visible";
+                }, 10);
+                stepsButton.innerText = "Hide Steps ⬅️"; // Change button text
+            }
+        }
+    </script>
 </head>
 <body>
     <div class="container">
@@ -31,6 +185,7 @@
                 <!-- Placeholder to display uploaded photo -->
                 <div id="photo-preview" style="margin-top: 10px; display: none;">
                     <img id="uploaded-photo" src="#" alt="Uploaded Photo" style="max-width: 100%; height: auto;">
+                    
                 </div>
             </div>
             <button id="solve-button" onclick="solveProblem()">Solve! ⬇️</button>
@@ -38,17 +193,18 @@
                 <label for="solution">Solution</label>
                 <textarea id="solution" placeholder="Solution will appear here..." readonly></textarea>
             </div>
-            <!-- Hide the steps button by default -->
-            <button id="show-steps-button" style="display: none;" onclick="toggleSteps()">Show Steps ➡️</button>
-            <!-- Hide the steps section by default -->
+            <button id="show-steps-button" style="visibility:hidden;" onclick="toggleSteps()">Show Steps ➡️</button>
             <div id="steps-section" class="steps-section" style="display: none;">
                 <!-- Steps will be dynamically populated here -->
             </div>
         </div>
+        <!-- Add p5.js library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+
+<!-- Add a canvas for visualization -->
         <div class="right-panel">
             <div class="visualization">
-                <iframe id="physics-iframe" src="{{ url_for('ball_drop_simulation') }}" style="width: 100%; height: 100%; border: none;"></iframe>
-
+                <div id="visualization-canvas"></div>
             </div>
         </div>
     </div>
