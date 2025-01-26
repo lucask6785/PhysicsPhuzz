@@ -695,6 +695,7 @@ async def main():
                 count += 1
                 if count == 600:
                     variable()
+                    print(VARIABLES)
                     if VARIABLES:
                         break
         elif VARIABLES["type"] == "pendulum":
