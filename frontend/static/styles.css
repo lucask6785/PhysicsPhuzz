@@ -59,17 +59,6 @@ textarea {
     box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Visualization area inside the right panel (game iframe) */
-.visualization {
-    width: 90%;
-    height: 90%;
-    border: 2px solid #ddd;  /* Lighter border for the game area */
-    border-radius: 15px;  /* Rounded corners */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);  /* Soft shadow around the iframe */
-    padding: 10px;  /* Add some internal padding for space between iframe and border */
-    background-color: #fff;  /* Background color to make it match the right panel */
-}
-
 .right-panel {
     width: 50%;
     padding: 20px;
@@ -80,6 +69,25 @@ textarea {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.visualization {
+    width: 100%; /* Ensure the visualization div takes up the full width of the right panel */
+    height: 100%; /* Ensure the visualization div takes up the full height of the right panel */
+    border: 2px solid #ddd;  /* Lighter border for the game area */
+    border-radius: 15px;  /* Rounded corners */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);  /* Soft shadow around the iframe */
+    background-color: #fff;  /* Background color to make it match the right panel */
+    display: flex;
+    justify-content: center; /* Center the iframe horizontally */
+    align-items: center; /* Center the iframe vertically */
+}
+
+.visualization iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 15px;
 }
 
 
