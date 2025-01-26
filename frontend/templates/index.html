@@ -210,10 +210,11 @@ function insertMath() {
                 const stepsSection = document.getElementById("steps-section");
                 if (data.steps) {
                     stepsSection.innerHTML = `<p>${data.steps}</p>`;
-                    stepsSection.style.display = "flex";
                     stepsButton.style.display = "inline-block"; // Show the steps button
-                    stepsButton.style.visibility = "visible";
                     stepsButton.innerText = "Show Steps ➡️"; // Default to "Show Steps"
+                } else {
+                    stepsSection.style.display = "none"; // Hide the steps section if no steps are available
+                    stepsButton.style.display = "none"; // Hide the steps button if no steps are available
                 }
 
                 // Increment the solve click count
@@ -261,14 +262,14 @@ function insertMath() {
             const stepsSection = document.getElementById("steps-section");
             const stepsButton = document.getElementById("show-steps-button");
 
-            if (stepsSection.style.display === "flex") {
-                // Hide the steps section
-                stepsSection.style.display = "none";
-                stepsButton.innerText = "Show Steps ➡️"; // Change button text
-            } else {
+            if (stepsSection.style.display === "none") {
                 // Show the steps section
                 stepsSection.style.display = "flex";
                 stepsButton.innerText = "Hide Steps ⬅️"; // Change button text
+            } else {
+                // Hide the steps section
+                stepsSection.style.display = "none";
+                stepsButton.innerText = "Show Steps ➡️"; // Change button text
             }
         }
     </script>
