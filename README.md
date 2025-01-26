@@ -19,7 +19,7 @@ An educational web application that helps students understand physics concepts t
    ```
 3. Start the backend server:
    ```bash
-   python main.py
+   python app.py
    ```
 4. Open the frontend/index.html in your browser
 
