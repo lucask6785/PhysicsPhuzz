@@ -19,27 +19,24 @@ An educational web application that helps students understand physics concepts t
    ```
 3. Start the backend server:
    ```bash
-   python main.py
+   python app.py
    ```
 4. Open the frontend/index.html in your browser
 
-## Project Structure
+## What is it?
+An educational web application that helps students understand physics concepts through interactive formula solving and visualization.
 
-- `main.py`: Backend server handling formula processing
-- `frontend/`: Contains all frontend files
-  - `index.html`: Main application interface
-  - `app.js`: Frontend logic
-  - `styles.css`: Application styling
-- `requirements.txt`: Python dependencies
+## Inspiration
+We are all taking Physics 1 with Calculus at UF and thought we could create a more streamlined approach to understanding fundamental physics concepts. We were confident that we could find better ways to explore and have fun while learning physics.
 
-## Usage
+## How we built it
+We built our website using a Flask framework, using Python for the backend and HTML/CSS/JS for the front end. We wanted to ensure we added interactivity and data visualization with a physics engine (Matter JS) while also keeping an easy-to-deploy implementation. We added a database in SQL with Flask in the backend to allow faster retrieval of previous data.
 
-1. Enter a physics formula in the input field
-2. Specify the variables to use
-3. View the step-by-step solution
-4. Manipulate variables to see how they affect the formula
-5. Explore the visualization of the formula's behavior
+## Challenges we ran into
+The hardest part of our design was visualizing the problem after outputting a solution, and especially showing it dynamically on the web. We had initially tried to implement a Python physics engine that we built with Pygame and Pymunk, however, after hours of work, it turned out to not be able to run smoothly on the web. We quickly had to pivot into a solution through a JavaScipt physics engine. It was a frustrating experience as we also became exhausted over time, but our final result turned out to be something we can be proud of, making it a rewarding experience.
 
-## Contributing
+## Accomplishments that we're proud of
+Designing a functional prototype of the software and working on the entire process for the full 24 hours. We managed to reach most of the expectations that we set, such as including a functional data visualizer that can be modified by the AI, as well as a proper tool to help us have a better experience while working in our Physics course. We managed to exceed our expectations by learning animations and coordinating a workflow to build our website, expanding our knowledge in web development, AI implementation, prompt engineering, and a rewarding teamwork experience.
 
-Contributions are welcome! Please open an issue or pull request for any improvements.
+## What's next for Physics Phuzz
+Even more visualizations for harder problems and a more effective UI! We are planning to make it a tool that covers a broader set of exercise solutions and to make it available to all devices! We believe our team did a great job in completing this project but we believe that there is still a lot of potential to improve.
